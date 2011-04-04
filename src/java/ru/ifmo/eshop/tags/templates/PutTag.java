@@ -29,26 +29,19 @@ public class PutTag extends TagSupport {
     @Override
     public int doStartTag() throws JspException {
         InsertTag parent = (InsertTag) getAncestor(
-                "tags.templates.InsertTag");
+                "ru.ifmo.eshop.tags.templates.InsertTag");
         if (parent == null) {
-            throw new JspException("PutTag.doStartTag(): "
-                    + "No InsertTag ancestor");
+            throw new JspException("PutTag.doStartTag():No InsertTag ancestor");
         }
-
         Stack template_stack = parent.getStack();
-
         if (template_stack == null) {
             throw new JspException("PutTag: no template stack");
         }
-
         Hashtable params = (Hashtable) template_stack.peek();
-
         if (params == null) {
             throw new JspException("PutTag: no hashtable");
         }
-
         params.put(name, new PageParameter(content, direct));
-
         return SKIP_BODY;
     }
 
@@ -59,7 +52,7 @@ public class PutTag extends TagSupport {
 
     private TagSupport getAncestor(String className)
             throws JspException {
-        Class klass = null; // cant name variable "class"
+        Class klass = null; //
         try {
             klass = Class.forName(className);
         } catch (ClassNotFoundException ex) {

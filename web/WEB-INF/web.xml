@@ -7,7 +7,7 @@
     <servlet-mapping>
         <servlet-name>eshop</servlet-name>
         <url-pattern>/eshop</url-pattern>
-      </servlet-mapping>
+    </servlet-mapping>
     <session-config>
         <session-timeout>
             30

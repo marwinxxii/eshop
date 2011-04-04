@@ -2,8 +2,7 @@
 <%@ taglib uri="/WEB-INF/tlds/template.tld" prefix="template" %>
 
 <template:insert template="/WEB-INF/admin/adminTemplate.jsp">
-  <template:put name="title" content="" direct="true"/>
   <template:put name="header" content="/WEB-INF/admin/header.html"/>
   <template:put name="menu" content="/WEB-INF/admin/menu.jsp"/>
-  <template:put name="content" content="/WEB-INF/admin/content.jsp" />
+  <template:put name="content" content="/WEB-INF/admin/addGenre.jsp" />
 </template:insert>

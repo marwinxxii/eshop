@@ -38,14 +38,16 @@ public class GetTag extends TagSupport {
                 try {
                     pageContext.getOut().print(content);
                 } catch (java.io.IOException ex) {
-                    throw new JspException(ex.getMessage());
+                    //throw new JspException(ex.getMessage());
+                    throw new JspException("line 42");
                 }
             } else {
                 try {
-                    pageContext.getOut().flush();
                     pageContext.include(content);
+                    pageContext.getOut().flush();
                 } catch (Exception ex) {
-                    throw new JspException(ex.getMessage());
+                    //throw new JspException(ex.getMessage());
+                    throw new JspException("line 48");
                 }
             }
         }
