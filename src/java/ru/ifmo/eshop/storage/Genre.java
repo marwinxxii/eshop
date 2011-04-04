@@ -6,27 +6,27 @@ package ru.ifmo.eshop.storage;
  * Time: 23:01
  */
 public class Genre {
-    public static final int TITLE_LENGTH=20;
-    public static final int COUNTRY_LENGTH=200;
+    public static final int TITLE_LENGTH=40;
+    public static final int DESCRIPTION_LENGTH=300;
 
     private int id;
     private String title;
     private String description;
 
-    public Genre() {
-    }
+    public Genre() {}
 
-    protected Genre(int id, String title, String description) {
-        if (id < 0) {
+    //TODO protected?
+    public Genre(int id, String title, String description) {
+        if (id <= 0) {
             throw new IllegalArgumentException("id is lesser than zero");
         }
-        if (title == null || title.equals("") || description == null || description.equals("")) {
+        if (title == null || title.isEmpty() || description == null || description.isEmpty()) {
             throw new IllegalArgumentException("Title and description have to be set");
         }
         if (title.length() > TITLE_LENGTH) {
             throw new IllegalArgumentException("Title is too long");
         }
-        if (description.length() > COUNTRY_LENGTH) {
+        if (description.length() > DESCRIPTION_LENGTH) {
             throw new IllegalArgumentException("Description is too long");
         }
         this.id = id;
@@ -38,9 +38,10 @@ public class Genre {
         return id;
     }
 
-    public void setId(int id) {
+    /*public void setId(int id) {
+        if (id<=0) throw new IllegalArgumentException("id is lesser than zero");
         this.id = id;
-    }
+    }*/
 
     public String getTitle() {
         return title;

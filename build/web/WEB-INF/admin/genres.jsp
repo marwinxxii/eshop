@@ -1,8 +1,32 @@
 <%@page contentType="text/html" pageEncoding="UTF-8" language="java"%>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.sql.SQLException" %>
+<%@ page import="ru.ifmo.eshop.Eshop" %>
+<%@ page import="ru.ifmo.eshop.storage.Genre" %>
+<%@ page import="ru.ifmo.eshop.storage.StorageManager" %>
 
 <%
 ResourceBundle messages=(ResourceBundle)pageContext.getAttribute("resourceBundle",PageContext.REQUEST_SCOPE);
+List<Genre> genres=null;
+try {
+    StorageManager sm = Eshop.getStorageManager();
+    genres=sm.getLastGenres();
+    sm.close();
+} catch (ClassNotFoundException ex) {
+    //TODO logging and exceptions
+    response.sendError(HttpServletResponse.SC_BAD_GATEWAY);
+} catch (SQLException ex) {
+    response.sendError(HttpServletResponse.SC_BAD_GATEWAY);
+}
+if (genres.size()==0) {
+    //TODO not found message
+    %>
+    <h1>No genres found</h1><br/>
+    <b><a href="/admin/genres.jsp?act=add">Add new genre</a></b>
+    <%
+    return;
+}
 %>
 
 <b><%= messages.getString("admin.forms.genres.view") %></b><br/><br/>
@@ -21,35 +45,31 @@ ResourceBundle messages=(ResourceBundle)pageContext.getAttribute("resourceBundle
             <b>Actions</b>
         </td>
     </tr>
-    <tr>
+    <%
+    for (Genre g:genres) {
+        //TODO delete genre
+    %>
+    <tr style="background-color: #ccc">
         <td>
-            1
+            <%= g.getId() %>
         </td>
         <td>
-            Dark Metal
+            <%= g.getTitle() %>
         </td>
         <td>
-            Some description...
+            <%= g.getDescription().substring(20)+"..." %>
         </td>
         <td>
-            <a href="?act=edit&id=1"><%= messages.getString("forms.edit") %></a>
-            <a href="#"><%= messages.getString("forms.delete") %></a>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            2
-        </td>
-        <td>
-            Heavy Metal
-        </td>
-        <td>
-            Another one metal genre
-        </td>
-        <td>
-            <a href="#"><%= messages.getString("forms.edit") %></a>
-            <a href="#"><%= messages.getString("forms.delete") %></a>
+            <a href="/admin/genres.jsp?act=edit&id=<%= g.getId() %>">
+                <%= messages.getString("forms.edit") %>
+            </a>
+            <a href="/admin/genres.jsp?act=del&id=<%= g.getId() %>">
+                <%= messages.getString("forms.delete") %>
+            </a>
         </td>
     </tr>
+    <%
+    }
+    %>
 </table><br/>
 <b><a href="/admin/genres.jsp?act=add">Add new genre</a></b>

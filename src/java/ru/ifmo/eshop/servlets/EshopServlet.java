@@ -1,4 +1,4 @@
-package ru.ifmo.eshop;
+package ru.ifmo.eshop.servlets;
 
 import java.io.IOException;
 import java.sql.SQLException;

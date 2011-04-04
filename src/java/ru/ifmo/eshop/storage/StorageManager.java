@@ -1,5 +1,6 @@
 package ru.ifmo.eshop.storage;
 
+import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -21,7 +22,8 @@ public class StorageManager {
     private final String password;
     private Connection connection;
 
-    public StorageManager(String host, int port, String login, String password) throws ClassNotFoundException, SQLException {
+    public StorageManager(String host, int port, String login, String password)
+            throws ClassNotFoundException, SQLException {
         if (host == null || port < 0 || login == null || password == null) {
             throw new IllegalArgumentException();
         }
@@ -33,6 +35,7 @@ public class StorageManager {
         connection = DriverManager.getConnection(url, this.login, this.password);
     }
 
+    @Override
     protected void finalize() throws Throwable {
         if (connection != null && !connection.isClosed()) {
             connection.close();
@@ -74,7 +77,7 @@ public class StorageManager {
     }
     }*/
     public Item getItem(int id) throws SQLException {
-        if (id < 0) {
+        if (id <= 0) {
             throw new IllegalArgumentException("Id is lesser than zero");
         }
         PreparedStatement pStatement = connection.prepareStatement("select "
@@ -141,16 +144,81 @@ public class StorageManager {
     }
 
     public List<Item> getLastItems() throws SQLException {
-        PreparedStatement pStatement=connection.prepareStatement(
+        PreparedStatement pStatement = connection.prepareStatement(
                 "select id from items where rownum<4 order by id desc");
-        ResultSet result=pStatement.executeQuery();
-        ArrayList<Item> items=new ArrayList<Item>();
+        //execute because query should return more that one row
+        pStatement.execute();
+        ResultSet result = pStatement.getResultSet();
+        ArrayList<Item> items = new ArrayList<Item>();
         //TODO optimization
         while (result.next()) {
-            int id=result.getInt(1);
+            int id = result.getInt(1);
             items.add(this.getItem(id));
         }
         pStatement.close();
         return items;
+    }
+
+    public Genre getGenre(int id) throws SQLException, UnsupportedEncodingException {
+        if (id <= 0) {
+            throw new IllegalArgumentException("Id is lesser than zero");
+        }
+        PreparedStatement pStatement = connection.prepareStatement(
+                "select * from genres where id=?");
+        pStatement.setInt(1, id);
+        ResultSet result=pStatement.executeQuery();
+        if (result.next()) {
+            String description=new String(result.getString("description").getBytes("Cp1251"));
+            return new Genre(result.getInt(1),result.getString("title"),
+                    description);
+        } else {
+            return null;
+        }
+    }
+
+    //TODO replace with int id,String title,String desc ???
+    public void addGenre(String title,String description) throws SQLException {
+        if (title==null || title.isEmpty()
+                || title.length()>Genre.TITLE_LENGTH) {
+            throw new IllegalArgumentException("Wrong title");
+        }
+        if (description==null || description.isEmpty()
+                || description.length()>Genre.DESCRIPTION_LENGTH) {
+            throw new IllegalArgumentException("Wrong description");
+        }
+        //TODO check that genre is not null?
+        PreparedStatement pStatement = connection.prepareStatement(
+                "insert into genres values(null,?,?)");
+        pStatement.setString(1, title);
+        pStatement.setString(2, description);
+        pStatement.executeUpdate();
+        //TODO check that query was successfull?
+        pStatement.close();
+    }
+
+    public void updateGenre(int id,String title,String description) throws SQLException {
+        PreparedStatement pStatement = connection.prepareStatement(
+                "insert into genres values(?,?,?)");
+        pStatement.setInt(1, id);
+        pStatement.setString(2, title);
+        pStatement.setString(3, description);
+        pStatement.executeUpdate();
+        pStatement.close();
+    }
+
+    public List<Genre> getLastGenres() throws SQLException, UnsupportedEncodingException {
+        PreparedStatement pStatement = connection.prepareStatement(
+                "select id from genres where rownum<4 order by id desc");
+        //execute because query should return more that one row
+        pStatement.execute();
+        ResultSet result = pStatement.getResultSet();
+        ArrayList<Genre> genres = new ArrayList<Genre>();
+        //TODO optimization
+        while (result.next()) {
+            int id = result.getInt(1);
+            genres.add(this.getGenre(id));
+        }
+        pStatement.close();
+        return genres;
     }
 }
