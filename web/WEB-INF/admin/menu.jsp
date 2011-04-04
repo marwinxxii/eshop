@@ -9,7 +9,7 @@ ResourceBundle messages=(ResourceBundle)pageContext.getAttribute("resourceBundle
     <li><a href="/admin"><%= messages.getString("admin.menu.home") %></a></li>
     <li><a href="/admin/labels.jsp"><%= messages.getString("admin.menu.labels") %></a></li>
     <li><a href="/admin/genres.jsp"><%= messages.getString("admin.menu.genres") %></a></li>
-    <li><a href="/admin/artists/add"><%= messages.getString("admin.menu.artists") %></a></li>
-    <li><a href="/admin/tracks/add"><%= messages.getString("admin.menu.tracks") %></a></li>
-    <li><a href="/admin/items/add"><%= messages.getString("admin.menu.items") %></a></li>
+    <li><a href="/admin/artists.jsp"><%= messages.getString("admin.menu.artists") %></a></li>
+    <li><a href="/admin/tracks.jsp"><%= messages.getString("admin.menu.tracks") %></a></li>
+    <li><a href="/admin/items.jsp"><%= messages.getString("admin.menu.items") %></a></li>
 </ul>

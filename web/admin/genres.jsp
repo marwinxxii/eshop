@@ -4,5 +4,13 @@
 <template:insert template="/WEB-INF/admin/adminTemplate.jsp">
   <template:put name="header" content="/WEB-INF/admin/header.html"/>
   <template:put name="menu" content="/WEB-INF/admin/menu.jsp"/>
-  <template:put name="content" content="/WEB-INF/admin/addGenre.jsp" />
+  <%
+    if (request.getParameter("act")!=null
+            && (request.getParameter("act").equals("add")
+            || request.getParameter("act").equals("edit"))) {
+        %>
+    <template:put name="content" content="/WEB-INF/admin/addGenre.jsp" />
+    <% } else { %>
+    <template:put name="content" content="/WEB-INF/admin/genres.jsp" />
+    <% }%>
 </template:insert>

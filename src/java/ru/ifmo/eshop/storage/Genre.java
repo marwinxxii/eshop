@@ -6,54 +6,69 @@ package ru.ifmo.eshop.storage;
  * Time: 23:01
  */
 public class Genre {
-	private int id;
-	private String title;
-	private String description;
+    public static final int TITLE_LENGTH=20;
+    public static final int COUNTRY_LENGTH=200;
 
-	public Genre() {}
+    private int id;
+    private String title;
+    private String description;
 
-	protected Genre(int id,String title, String description) {
-		if (id<0) throw new IllegalArgumentException("id is lesser than zero");
-		if (title==null || title.equals("") || description==null || description.equals("")) {
-			throw new IllegalArgumentException("Title and description have to be set");
-		}
-		if (title.length()>20) throw new IllegalArgumentException("Title is too long");
-		if (description.length()>200) throw new IllegalArgumentException("Description is too long");
-		this.id=id;
-		this.title=title;
-		this.description = description;
-	}
+    public Genre() {
+    }
 
-	public int getId() {
-		return id;
-	}
+    protected Genre(int id, String title, String description) {
+        if (id < 0) {
+            throw new IllegalArgumentException("id is lesser than zero");
+        }
+        if (title == null || title.equals("") || description == null || description.equals("")) {
+            throw new IllegalArgumentException("Title and description have to be set");
+        }
+        if (title.length() > TITLE_LENGTH) {
+            throw new IllegalArgumentException("Title is too long");
+        }
+        if (description.length() > COUNTRY_LENGTH) {
+            throw new IllegalArgumentException("Description is too long");
+        }
+        this.id = id;
+        this.title = title;
+        this.description = description;
+    }
 
-	public void setId(int id) {
-		this.id=id;
-	}
+    public int getId() {
+        return id;
+    }
 
-	public String getTitle() {
-		return title;
-	}
+    public void setId(int id) {
+        this.id = id;
+    }
 
-	/*public void setTitle(String title) {
-		this.title = title;
-	}*/
+    public String getTitle() {
+        return title;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    /*public void setTitle(String title) {
+    this.title = title;
+    }*/
+    public String getDescription() {
+        return description;
+    }
 
-	/*public void setDescription(String description) {
-		this.description = description;
-	}*/
-
-	public boolean equals(Object obj) {
-		if (obj==null) return false;
-		if (!(obj instanceof Genre)) return false;
-		Genre g=(Genre)obj;
-		if (this.id!=g.id) return false;
-		//if mandatory field is null, then this is illegal state
-		return title.equals(g.title) && description.equals(g.description);
-	}
+    /*public void setDescription(String description) {
+    this.description = description;
+    }*/
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof Genre)) {
+            return false;
+        }
+        Genre g = (Genre) obj;
+        if (this.id != g.id) {
+            return false;
+        }
+        //if mandatory field is null, then this is illegal state
+        return title.equals(g.title) && description.equals(g.description);
+    }
 }
