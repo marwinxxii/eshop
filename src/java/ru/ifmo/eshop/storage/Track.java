@@ -2,9 +2,13 @@ package ru.ifmo.eshop.storage;
 
 public class Track {
 
+    public static final int TITLE_LENGTH=50;
+    public static final int COMPOSER_LENGTH=50;
+    public static final int DURATION_LENGTH=7;
+
     private int id;
     private Artist artist;
-    private int itemId;
+    private Item item;
     private String title;
     private int trackNumber;
     private String composer;
@@ -14,14 +18,14 @@ public class Track {
     public Track() {
     }
 
-    public Track(int id, Artist artist, int itemId, String title, int trackNumber, boolean isvideo) {
-        if (id < 0 || itemId < 0) {
+    public Track(int id, Artist artist, Item item, String title, int trackNumber, boolean isvideo) {
+        if (id <= 0) {
             throw new IllegalArgumentException("id is lesser than zero");
         }
         if (title == null || title.isEmpty()) {
             throw new IllegalArgumentException("Title is null or empty");
         }
-        if (title.length() > 50) {
+        if (title.length() > TITLE_LENGTH) {
             throw new IllegalArgumentException("Title is too long");
         }
         if (trackNumber < 1) {
@@ -32,7 +36,7 @@ public class Track {
         }
         this.id = id;
         this.artist = artist;
-        this.itemId = itemId;
+        this.item = item;
         this.title = title;
         this.trackNumber = trackNumber;
         this.isVideo = isvideo;
@@ -51,22 +55,22 @@ public class Track {
         this.artist = artist;
     }
 
-    public int getItemId() {
-        return itemId;
+    public Item getItem() {
+        return item;
     }
 
-    public void setItemId(int itemId) {
-        if (id < 0) {
-            throw new IllegalArgumentException("id is lesser than zero");
+    public void setItem(Item item) {
+        if (item==null) {
+            throw new IllegalArgumentException("item is null");
         }
-        this.itemId = itemId;
+        this.item = item;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
+    /*public void setTitle(String title) {
         if (title == null) {
             throw new IllegalArgumentException("Title is null");
         }
@@ -74,18 +78,18 @@ public class Track {
             throw new IllegalArgumentException("Title is too long");
         }
         this.title = title;
-    }
+    }*/
 
     public int getTrackNumber() {
         return trackNumber;
     }
 
-    public void setTrackNumber(int trackNumber) {
+    /*public void setTrackNumber(int trackNumber) {
         if (trackNumber < 1) {
             throw new IllegalArgumentException("Wrong track num");
         }
         this.trackNumber = trackNumber;
-    }
+    }*/
 
     public String getComposer() {
         return composer;
@@ -95,7 +99,7 @@ public class Track {
         if (composer == null) {
             throw new IllegalArgumentException("Composer is null");
         }
-        if (composer.length() > 50) {
+        if (composer.length() > COMPOSER_LENGTH) {
             throw new IllegalArgumentException("Composer name is too long");
         }
         this.composer = composer;

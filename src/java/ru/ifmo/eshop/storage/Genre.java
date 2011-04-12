@@ -15,13 +15,13 @@ public class Genre {
 
     public Genre() {}
 
-    //TODO protected?
     public Genre(int id, String title, String description) {
         if (id <= 0) {
             throw new IllegalArgumentException("id is lesser than zero");
         }
-        if (title == null || title.isEmpty() || description == null || description.isEmpty()) {
-            throw new IllegalArgumentException("Title and description have to be set");
+        if (title == null || title.isEmpty() || description == null
+                || description.isEmpty()) {
+            throw new IllegalArgumentException("Title and desc have to be set");
         }
         if (title.length() > TITLE_LENGTH) {
             throw new IllegalArgumentException("Title is too long");
@@ -50,6 +50,7 @@ public class Genre {
     /*public void setTitle(String title) {
     this.title = title;
     }*/
+    
     public String getDescription() {
         return description;
     }
@@ -57,6 +58,7 @@ public class Genre {
     /*public void setDescription(String description) {
     this.description = description;
     }*/
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {

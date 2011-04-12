@@ -5,6 +5,11 @@ import java.util.List;
 
 public class Item {
 
+    public static final int MEDIATYPE_LENGTH=20;
+    public static final int FORMAT_LENGTH=20;
+    public static final int TITLE_LENGTH=50;
+    public static final int COVER_LENGTH=50;
+
     private int id;
     private String mediaType;
     private String format;
@@ -15,7 +20,7 @@ public class Item {
     private List<Artist> artists;
 
     public Item(int id, String mediaType, String format, String title, Date releaseDate) {
-        if (id < 0) {
+        if (id <= 0) {
             throw new IllegalArgumentException("id is lesser than zero");
         }
         if (mediaType == null || format == null || title == null || releaseDate == null) {
@@ -24,16 +29,19 @@ public class Item {
         if (mediaType.isEmpty() || format.isEmpty() || title.isEmpty()) {
             throw new IllegalArgumentException("Some string are empty");
         }
-        if (mediaType.length() > 20) {
+        if (mediaType.length() > MEDIATYPE_LENGTH) {
             throw new IllegalArgumentException("Media type is too long");
         }
-        if (format.length() > 20) {
+        if (format.length() > FORMAT_LENGTH) {
             throw new IllegalArgumentException("Format is too long");
         }
-        if (title.length() > 50) {
+        if (title.length() > TITLE_LENGTH) {
             throw new IllegalArgumentException("Title is too long");
         }
-        //TODO check releaseDate
+        if (releaseDate.getTime()>System.currentTimeMillis()) {
+            throw new IllegalArgumentException("Wrong release date");
+        }
+        //TODO releaseDate may be in future?
         this.id = id;
         this.mediaType = mediaType;
         this.format = format;
@@ -46,23 +54,23 @@ public class Item {
         return mediaType;
     }
 
-    public void setMediaType(String mediaType) {
-        if (mediaType == null || mediaType.length() > 20) {
-            throw new IllegalArgumentException();
+    /*public void setMediaType(String mediaType) {
+        if (mediaType == null || mediaType.length() > MEDIATYPE_LENGTH) {
+            throw new IllegalArgumentException("Wrong media type");
         }
         this.mediaType = mediaType;
-    }
+    }*/
 
     public String getFormat() {
         return format;
     }
 
-    public void setFormat(String format) {
-        if (format == null || format.length() > 20) {
+    /*public void setFormat(String format) {
+        if (format == null || format.length() > FORMAT_LENGTH) {
             throw new IllegalArgumentException();
         }
         this.format = format;
-    }
+    }*/
 
     public Label getLabel() {
         return label;
@@ -79,19 +87,19 @@ public class Item {
         return title;
     }
 
-    public void setTitle(String title) {
-        if (title == null || title.length() > 50) {
+    /*public void setTitle(String title) {
+        if (title == null || title.isEmpty() || title.length() > TITLE_LENGTH) {
             throw new IllegalArgumentException();
         }
         this.title = title;
-    }
+    }*/
 
     public String getCover() {
         return cover;
     }
 
     public void setCover(String cover) {
-        if (cover == null || cover.length() > 50) {
+        if (cover == null || cover.length() > COVER_LENGTH) {
             throw new IllegalArgumentException();
         }
         this.cover = cover;

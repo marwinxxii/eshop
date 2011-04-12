@@ -17,10 +17,11 @@ public class Label {
     }
 
     public Label(int id, String title, String country) {
-        if (id < 0) {
+        if (id <= 0) {
             throw new IllegalArgumentException("id is lesser than zero");
         }
-        if (title == null || title.equals("") || country == null || country.equals("")) {
+        if (title == null || title.isEmpty() || country == null
+                || country.isEmpty()) {
             throw new IllegalArgumentException("Title and country have to be set");
         }
         if (title.length() > TITLE_LENGTH) {
@@ -35,10 +36,10 @@ public class Label {
     }
 
     public Label(int id, String title) {
-        if (id < 0) {
+        if (id <= 0) {
             throw new IllegalArgumentException("id is lesser than zero");
         }
-        if (title == null || title.equals("")) {
+        if (title == null || title.isEmpty()) {
             throw new IllegalArgumentException("Title have to be set");
         }
         if (title.length() >TITLE_LENGTH) {
@@ -58,11 +59,8 @@ public class Label {
     }
 
     public void setCountry(String country) {
-        if (country == null) {
-            throw new IllegalArgumentException("Country is null");
-        }
-        if (country.length() > COUNTRY_LENGTH) {
-            throw new IllegalArgumentException("COuntry name is too long");
+        if (country == null || country.length() > COUNTRY_LENGTH) {
+            throw new IllegalArgumentException("Country is null or too long");
         }
         this.country = country;
     }

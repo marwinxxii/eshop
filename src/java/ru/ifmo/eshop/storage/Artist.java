@@ -21,7 +21,7 @@ public class Artist {
     }
 
     public Artist(int id, String title, Genre genre) {
-        if (id < 0) {
+        if (id <= 0) {
             throw new IllegalArgumentException("id is lesser than zero");
         }
         if (title == null || title.isEmpty()) {
@@ -47,7 +47,7 @@ public class Artist {
         return title;
     }
 
-    public void setTitle(String title) {
+    /*public void setTitle(String title) {
         if (title == null || title.isEmpty()) {
             throw new IllegalArgumentException("Title have to be set");
         }
@@ -55,18 +55,18 @@ public class Artist {
             throw new IllegalArgumentException("Title is too long");
         }
         this.title = title;
-    }
+    }*/
 
     public Genre getGenre() {
         return genre;
     }
 
-    public void setGenre(Genre genre) {
+    /*public void setGenre(Genre genre) {
         if (genre == null) {
             throw new IllegalArgumentException("Genre have to be set");
         }
         this.genre = genre;
-    }
+    }*/
 
     public String getCountry() {
         return country;
