@@ -113,7 +113,7 @@ public class Track {
         if (duration == null) {
             throw new IllegalArgumentException("Duration is null");
         }
-        if (duration.length() > 7) {
+        if (duration.length() > DURATION_LENGTH) {
             throw new IllegalArgumentException("Duration too long");
         }
         this.duration = duration;

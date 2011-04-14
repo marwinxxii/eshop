@@ -4,9 +4,25 @@
         <servlet-name>GenreServlet</servlet-name>
         <servlet-class>ru.ifmo.eshop.servlets.GenreServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>LabelServlet</servlet-name>
+        <servlet-class>ru.ifmo.eshop.servlets.LabelServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>GenreServlet</servlet-name>
         <url-pattern>/admin/genre</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>EshopServlet</servlet-name>
+        <servlet-class>ru.ifmo.eshop.servlets.EshopServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>EshopServlet</servlet-name>
+        <url-pattern>/eshop</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LabelServlet</servlet-name>
+        <url-pattern>/admin/label</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

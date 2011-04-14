@@ -1,20 +1,26 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
 package ru.ifmo.eshop.servlets;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.SQLException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import ru.ifmo.eshop.Eshop;
-import ru.ifmo.eshop.storage.Genre;
+import ru.ifmo.eshop.storage.Label;
 import ru.ifmo.eshop.storage.StorageManager;
 
 /**
  *
  * @author alex
  */
-public class GenreServlet extends HttpServlet {
+public class LabelServlet extends HttpServlet {
 
     /** 
      * Handles the HTTP <code>GET</code> method.
@@ -49,21 +55,18 @@ public class GenreServlet extends HttpServlet {
         boolean error=false;
         String mes="";
         String title=request.getParameter("title");
-        String description=request.getParameter("description");
+        String country=request.getParameter("country");
         if (title==null || title.isEmpty()) {
             error=true;
             mes="title null";
-        } else if (title.length()>Genre.TITLE_LENGTH) {
+        } else if (title.length()>Label.TITLE_LENGTH) {
             error=true;
             mes="title long";
         }
-        if (description==null || description.isEmpty()) {
+        if (country!=null && country.length()>Label.COUNTRY_LENGTH) {
             error=true;
-            mes="desc null";
-        } else if (description.length()>Genre.DESCRIPTION_LENGTH) {
-            error=true;
-            mes="desc long";
-            mes+=description;
+            mes="country long";
+            mes+=country;
         }
         /*if (error) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -95,12 +98,12 @@ public class GenreServlet extends HttpServlet {
         try {
             StorageManager sm = Eshop.getStorageManager();
             if (add) {
-                sm.addGenre(title,description);
+                sm.addLabel(title,country);
             } else {
-                sm.updateGenre(id, title, description);
+                sm.updateLabel(id, title, country);
             }
             sm.close();
-            response.sendRedirect("/admin/genres.jsp");
+            response.sendRedirect("/admin/labels.jsp");
         } catch (ClassNotFoundException ex) {
             //TODO logging and exceptions
             ex.printStackTrace(response.getWriter());
@@ -117,7 +120,7 @@ public class GenreServlet extends HttpServlet {
      */
     @Override
     public String getServletInfo() {
-        return "Servlet for adding/editing genres";
+        return "Servlet for adding/editing labels";
     }
 
 }

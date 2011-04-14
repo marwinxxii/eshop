@@ -50,6 +50,10 @@ public class Label {
         this.country = "";
     }
 
+    public int getId() {
+        return id;
+    }
+
     public String getTitle() {
         return title;
     }

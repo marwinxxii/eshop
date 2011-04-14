@@ -15,11 +15,13 @@ try {
     sm.close();
 } catch (ClassNotFoundException ex) {
     //TODO logging and exceptions
+    ex.printStackTrace(response.getWriter());
     response.sendError(HttpServletResponse.SC_BAD_GATEWAY);
 } catch (SQLException ex) {
+    ex.printStackTrace(response.getWriter());
     response.sendError(HttpServletResponse.SC_BAD_GATEWAY);
 }
-if (genres.size()==0) {
+if (genres==null || genres.size()==0) {
     //TODO not found message
     %>
     <h1>No genres found</h1><br/>
@@ -57,7 +59,7 @@ if (genres.size()==0) {
             <%= g.getTitle() %>
         </td>
         <td>
-            <%= g.getDescription().substring(20)+"..." %>
+            <%= g.getDescription()+"..." %>
         </td>
         <td>
             <a href="/admin/genres.jsp?act=edit&id=<%= g.getId() %>">
