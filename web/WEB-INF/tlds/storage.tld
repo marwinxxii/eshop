@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE taglib PUBLIC
+  "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.1//EN"
+  "http://java.sun.com/j2ee/dtds/web-jsptaglibrary_1_1.dtd">
+<taglib>
+	<tlibversion>1.0</tlibversion>
+	<jspversion>1.1</jspversion>
+	<shortname>Storage Tags</shortname>
+	<tag>
+		<name>getGenre</name>
+		<tagclass>ru.ifmo.eshop.tags.storage.GenreTag</tagclass>
+		<bodycontent>JSP</bodycontent>
+		<attribute>
+			<name>identity</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+                <attribute>
+			<name>message</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+	</tag>
+	<tag>
+		<name>genre</name>
+		<tagclass>ru.ifmo.eshop.tags.storage.GenreObjectTag</tagclass>
+		<bodycontent>JSP</bodycontent>
+		<attribute>
+			<name>field</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+                <attribute>
+			<name>length</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+                        <type>int</type>
+		</attribute>
+	</tag>
+	<!--<tag>
+		<name>get</name>
+		<tagclass>ru.ifmo.eshop.tags.templates.GetTag</tagclass>
+		<bodycontent>JSP</bodycontent>
+		<attribute>
+			<name>name</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+	</tag>-->
+</taglib>
