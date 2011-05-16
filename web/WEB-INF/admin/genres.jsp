@@ -6,34 +6,14 @@
 ResourceBundle messages=(ResourceBundle)pageContext.getAttribute("resourceBundle",PageContext.REQUEST_SCOPE);
 %>
 <script type="text/javascript">
-    var selected=false;
-    
-    function deleteGenres() {
-        var genres=document.getElementsByClassName("genre");
-        var ids=document.getElementById("ids");
-        ids.value='';
-        for (var i=0;i<genres.length;i++) {
-            if (genres[i].checked) {
-                ids.value+=genres[i].value;
-            }
-            if (i!=genres.length-1) ids.value+=',';
-        }
-        return confirm('<%= messages.getString("confirm") %>')
-    }
-
-    function selectAll() {
-        var genres=document.getElementsByClassName("genre");
-        for (var i=0;i<genres.length;i++) {
-            genres[i].checked=!selected;
-        }
-        selected=!selected;
-    }
+    var confirmMessage='<%= messages.getString("confirm") %>';
 </script>
+<script type="text/javascript" src="/admin/static/main.js"></script>
 <b><%= messages.getString("admin.forms.genres.view") %></b><br/><br/>
 <form method="post" action="/admin/genre">
     <input type="hidden" name="act" value="del"/>
     <input type="hidden" id="ids" name="ids"/>
-    <table width="100%" cellpadding="0" cellspacing="0" style="text-align: center">
+    <table cellpadding="0" cellspacing="0" class="records">
         <tr style="background-color: #ccc">
             <td width="10px"><input type="checkbox" title="TODO" onclick="selectAll()"/></td>
             <td>
@@ -49,10 +29,10 @@ ResourceBundle messages=(ResourceBundle)pageContext.getAttribute("resourceBundle
                 <b>Actions</b>
             </td>
         </tr>
-        <storage:getGenre identity="last" message="<%= "<tr><td colspan=4>"+messages.getString("messages.genres.notfound")+"</td></tr>" %>">
-            <tr style="background-color: #eee">
-                <td><input type="checkbox" class="genre"
-                           name="genre<storage:genre field="id"/>"
+        <storage:record identity="last" entity="Genre"
+        message="<%= "<tr><td colspan=4>"+messages.getString("messages.genres.notfound")+"</td></tr>" %>">
+            <tr>
+                <td><input type="checkbox" class="record"
                            value="<storage:genre field="id"/>"/></td>
                 <td>
                     <storage:genre field="id"/>
@@ -73,9 +53,9 @@ ResourceBundle messages=(ResourceBundle)pageContext.getAttribute("resourceBundle
                     </a>
                 </td>
             </tr>
-        </storage:getGenre>
+        </storage:record>
     </table><br/>
 <input type="submit" value="<%= messages.getString("forms.delete") %>"
-       onclick="deleteGenres()"/>
+       onclick="deleteRecords(event)"/>
 </form>
 <b><a href="/admin/genres.jsp?act=add"><%= messages.getString("admin.forms.genres.add") %></a></b>

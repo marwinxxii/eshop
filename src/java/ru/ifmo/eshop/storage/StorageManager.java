@@ -1,10 +1,12 @@
 package ru.ifmo.eshop.storage;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -20,6 +22,8 @@ public class StorageManager {
     private final String login;
     private final String password;
     private Connection connection;
+    private static Genre emptyGenre=new Genre(1,"title","desc");
+    private static Item emptyItem=new Item(1,"cd","LP","title",new Date(System.currentTimeMillis()));
 
     public StorageManager(String host, int port, String login, String password)
             throws ClassNotFoundException, SQLException {
@@ -52,11 +56,12 @@ public class StorageManager {
         }
     }
 
+    public static Item registerItem(String mediaType,String format,String title,
+            Date releaseDate) {
+        return new Item(1,mediaType,format,title,releaseDate);
+    }
+
     public Item getItem(int id) throws SQLException {
-        //TODO check for id needed?
-        if (id <= 0) {
-            throw new IllegalArgumentException("Id is lesser than zero");
-        }
         PreparedStatement pStatement = connection.prepareStatement("select "
                 + "items.id as item_id,"
                 + "items.media_type,"
@@ -130,6 +135,7 @@ public class StorageManager {
             i.setArtists(artists);
             return i;
         } else {
+            result.close();
             pStatement.close();
             return null;
         }
@@ -138,7 +144,7 @@ public class StorageManager {
     public List<Item> getLastItems() throws SQLException {
         PreparedStatement pStatement = connection.prepareStatement(
                 "select id from items where rownum<4 order by id desc");
-        //execute because query should return more that one row
+        //execute because query should return more than one row
         pStatement.execute();
         ResultSet result = pStatement.getResultSet();
         ArrayList<Item> items = new ArrayList<Item>();
@@ -147,14 +153,63 @@ public class StorageManager {
             int id = result.getInt(1);
             items.add(this.getItem(id));
         }
+        result.close();
         pStatement.close();
         return items;
     }
 
-    public Genre getGenre(int id) throws SQLException {
-        if (id <= 0) {
-            throw new IllegalArgumentException("Id is lesser than zero");
+    public void addItem(Item item) throws SQLException {
+        PreparedStatement pStatement = connection.prepareStatement(
+                "insert into items values(null,?,?,?,?,?,?)");
+        pStatement.setString(1, item.getMediaType());
+        pStatement.setString(2, item.getFormat());
+        if (item.getLabel()!=null) {
+            pStatement.setInt(3, item.getLabel().getId());
+        } else {
+            pStatement.setNull(3, Types.INTEGER);
         }
+        pStatement.setString(4, item.getTitle());
+        if (item.getCover()!=null) {
+            pStatement.setString(5, item.getCover());
+        } else {
+            pStatement.setNull(3, Types.VARCHAR);
+        }
+        pStatement.setDate(6, item.getReleaseDate());
+        pStatement.executeUpdate();
+        pStatement.close();
+    }
+
+    public void updateItem(Item item) throws SQLException {
+        PreparedStatement pStatement = connection.prepareStatement(
+                "update items set media_type=?,format=?,label_id=?,title=?,cover=?,release_date=? where id=?");
+        pStatement.setString(1, item.getMediaType());
+        pStatement.setString(2, item.getFormat());
+        if (item.getLabel()!=null) {
+            pStatement.setInt(3, item.getLabel().getId());
+        } else {
+            pStatement.setNull(3, Types.INTEGER);
+        }
+        pStatement.setString(4, item.getTitle());
+        if (item.getCover()!=null) {
+            pStatement.setString(5, item.getCover());
+        } else {
+            pStatement.setNull(3, Types.VARCHAR);
+        }
+        pStatement.setDate(6, item.getReleaseDate());
+        pStatement.setInt(7, item.getId());
+        pStatement.execute();
+        pStatement.close();
+    }
+
+    public void deleteItem(int id) throws SQLException {
+        PreparedStatement pStatement = connection.prepareStatement(
+                "delete from items where id=?");
+        pStatement.setInt(1, id);
+        pStatement.executeUpdate();
+        pStatement.close();
+    }
+
+    public Genre getGenre(int id) throws SQLException {
         PreparedStatement pStatement = connection.prepareStatement(
                 "select * from genres where id=?");
         pStatement.setInt(1, id);
@@ -164,19 +219,12 @@ public class StorageManager {
             genre = new Genre(result.getInt(1), result.getString("title"),
                     result.getString("description"));
         }
+        result.close();
         pStatement.close();
         return genre;
     }
 
     public void addGenre(String title,String description) throws SQLException {
-        if (title==null || title.isEmpty()
-                || title.length()>Genre.TITLE_LENGTH) {
-            throw new IllegalArgumentException("Wrong title");
-        }
-        if (description==null || description.isEmpty()
-                || description.length()>Genre.DESCRIPTION_LENGTH) {
-            throw new IllegalArgumentException("Wrong description");
-        }
         PreparedStatement pStatement = connection.prepareStatement(
                 "insert into genres values(null,?,?)");
         pStatement.setString(1, title);
@@ -187,23 +235,16 @@ public class StorageManager {
 
     public void updateGenre(int id,String title,String description)
             throws SQLException {
-        if (id<=0) throw new IllegalArgumentException("id is <=0");
-        if (title==null || title.isEmpty() || title.length()>Genre.TITLE_LENGTH)
-            throw new IllegalArgumentException("title is null or empty");
-        if (description==null || description.isEmpty()
-                || description.length()>Genre.DESCRIPTION_LENGTH)
-            throw new IllegalArgumentException("desc is null or empty");
         PreparedStatement pStatement = connection.prepareStatement(
-                "insert into genres values(?,?,?)");
-        pStatement.setInt(1, id);
-        pStatement.setString(2, title);
-        pStatement.setString(3, description);
+                "update genres set title=?,description=? where id=?");
+        pStatement.setString(1, title);
+        pStatement.setString(2, description);
+        pStatement.setInt(3, id);
         pStatement.executeUpdate();
         pStatement.close();
     }
 
     public void deleteGenre(int id) throws SQLException {
-        if (id<=0) throw new IllegalArgumentException("id is <=0");
         PreparedStatement pStatement = connection.prepareStatement(
                 "delete from genres where id=?");
         pStatement.setInt(1, id);
@@ -223,35 +264,50 @@ public class StorageManager {
             int id = result.getInt(1);
             genres.add(this.getGenre(id));
         }
+        result.close();
         pStatement.close();
         return genres;
     }
 
+    public static Label registerLabel(String title) {
+        return new Label(1,title);
+    }
+
     public Label getLabel(int id) throws SQLException {
-        if (id<=0) throw new IllegalArgumentException("id is <=0");
          PreparedStatement pStatement = connection.prepareStatement(
                 "select * from labels where id=?");
         pStatement.setInt(1, id);
         ResultSet result=pStatement.executeQuery();
         Label label=null;
         if (result.next()) {
-            label=new Label(result.getInt(1),result.getString("title"),
-                    result.getString("country"));
+            label=new Label(result.getInt(1),result.getString("title"));
+            if (result.getString("country")!=null) {
+                label.setCountry(result.getString("country"));
+            }
         }
+        result.close();
         pStatement.close();
         return label;
     }
 
+    public List<Label> getLastLabels() throws SQLException {
+        PreparedStatement pStatement = connection.prepareStatement(
+                "select id from labels where rownum<=5 order by id desc");
+        //execute because query should return more that one row
+        pStatement.execute();
+        ResultSet result = pStatement.getResultSet();
+        ArrayList<Label> labels = new ArrayList<Label>();
+        //TODO optimization
+        while (result.next()) {
+            int id = result.getInt(1);
+            labels.add(this.getLabel(id));
+        }
+        result.close();
+        pStatement.close();
+        return labels;
+    }
+
     public void addLabel(String title,String country) throws SQLException {
-        if (title==null || title.isEmpty()
-                || title.length()>Label.TITLE_LENGTH) {
-            throw new IllegalArgumentException("Wrong title");
-        }
-        if (country!=null && country.length()>Label.COUNTRY_LENGTH) {
-            throw new IllegalArgumentException("country is too long");
-        } else {
-            country="";
-        }
         PreparedStatement pStatement = connection.prepareStatement(
                 "insert into labels values(null,?,?)");
         pStatement.setString(1, title);
@@ -262,25 +318,16 @@ public class StorageManager {
 
     public void updateLabel(int id,String title,String country) 
             throws SQLException {
-        if (id<=0) throw new IllegalArgumentException("id is <=0");
-        if (title==null || title.isEmpty() || title.length()>Genre.TITLE_LENGTH)
-            throw new IllegalArgumentException("title is null or empty");
-        if (country!=null && country.length()>Label.COUNTRY_LENGTH) {
-            throw new IllegalArgumentException("country is too long");
-        } else {
-            country="";
-        }
         PreparedStatement pStatement = connection.prepareStatement(
-                "insert into labels values(?,?,?)");
-        pStatement.setInt(1, id);
-        pStatement.setString(2, title);
-        pStatement.setString(3, country);
+                "update labels set title=?,country=? where id=?");
+        pStatement.setInt(3, id);
+        pStatement.setString(1, title);
+        pStatement.setString(2, country);
         pStatement.executeUpdate();
         pStatement.close();
     }
 
     public void deleteLabel(int id) throws SQLException {
-        if (id<=0) throw new IllegalArgumentException("id is <=0");
         PreparedStatement pStatement = connection.prepareStatement(
                 "delete from labels where id=?");
         pStatement.setInt(1, id);
@@ -290,8 +337,11 @@ public class StorageManager {
 
     //public List<Label> getLastLabels()
 
+    public static Artist registerArtist(String title,int genreId) {
+        return new Artist(1,title,new Genre(genreId,"title","desc"));//TODO genre
+    }
+
     public Artist getArtist(int id) throws SQLException {
-       if (id<=0) throw new IllegalArgumentException("id is <=0");
        PreparedStatement ps = connection.prepareStatement("select "
                     + "artists.id as artist_id,"
                     + "artists.title as artist_title,"
@@ -322,17 +372,254 @@ public class StorageManager {
                 artist.setEndYear(result.getInt("end_year"));
             }
        }
+       result.close();
        ps.close();
        return artist;
     }
 
-    //public void addArtist(Artist artis)
+    public List<Artist> getLastArtists() throws SQLException {
+        PreparedStatement pStatement = connection.prepareStatement(
+                "select id from artists where rownum<=5 order by id desc");
+        pStatement.execute();
+        ResultSet result = pStatement.getResultSet();
+        ArrayList<Artist> artists = new ArrayList<Artist>();
+        //TODO optimization
+        while (result.next()) {
+            int id = result.getInt(1);
+            artists.add(this.getArtist(id));
+        }
+        result.close();
+        pStatement.close();
+        return artists;
+    }
+
+    public void addArtist(Artist artist) throws SQLException {
+        PreparedStatement pStatement = connection.prepareStatement(
+                "insert into artists values(null,?,?,?,?,?)");
+        pStatement.setString(1, artist.getTitle());
+        pStatement.setInt(2, artist.getGenre().getId());
+        if (artist.getCountry()==null) {
+            pStatement.setNull(3, Types.VARCHAR);
+        } else {
+            pStatement.setString(3, artist.getCountry());
+        }
+        if (artist.getBeginYear()==null) {
+            pStatement.setNull(4, Types.INTEGER);
+        } else {
+            pStatement.setInt(4, artist.getBeginYear());
+        }
+        if (artist.getEndYear()==null) {
+            pStatement.setNull(5, Types.INTEGER);
+        } else {
+            pStatement.setInt(5, artist.getEndYear());
+        }
+        pStatement.executeUpdate();
+        pStatement.close();
+    }
+
+    public void updateArtist(Artist artist) throws SQLException {
+        PreparedStatement pStatement = connection.prepareStatement(
+                "update artists set title=?,genre_id=?,country=?,begin_year=?,end_year=? where id=?");
+        pStatement.setString(1, artist.getTitle());
+        pStatement.setInt(2, artist.getGenre().getId());
+        if (artist.getCountry()==null) {
+            pStatement.setNull(3, Types.VARCHAR);
+        } else {
+            pStatement.setString(3, artist.getCountry());
+        }
+        if (artist.getBeginYear()==null) {
+            pStatement.setNull(4, Types.INTEGER);
+        } else {
+            pStatement.setInt(4, artist.getBeginYear());
+        }
+        if (artist.getEndYear()==null) {
+            pStatement.setNull(5, Types.INTEGER);
+        } else {
+            pStatement.setInt(5, artist.getEndYear());
+        }
+        pStatement.setInt(6,artist.getId());
+        pStatement.executeUpdate();
+        pStatement.close();
+    }
 
     //TODO think about deleting related objects
     public void deleteArtist(int id) throws SQLException {
-        if (id<=0) throw new IllegalArgumentException("id is <=0");
         PreparedStatement pStatement = connection.prepareStatement(
                 "delete from artists where id=?");
+        pStatement.setInt(1, id);
+        pStatement.executeUpdate();
+        pStatement.close();
+    }
+
+    public static Track registerTrack(int artistId,int itemId,String title,int trackNumber) {
+        return new Track(1,new Artist(artistId,"title",emptyGenre),
+                new Item(itemId,"cd","LP","title",new Date(System.currentTimeMillis())),
+                title,trackNumber);
+    }
+
+    public Track getTrack(int id) throws SQLException {
+        /*PreparedStatement pStatement=connection.prepareStatement(
+                "select" +
+                "tracks.id as track_id," +
+                "tracks.title as track_title," +
+                "tracks.track_number," +
+                "tracks.composer," +
+                "tracks.duration," +
+                "tracks.isvideo," +
+                "artists.id as artist_id," +
+                "artists.title as artist_title," +
+                "");*/
+        PreparedStatement pStatement=connection.prepareStatement(
+                "select * from tracks where id=?");//TODO rewrite query
+        pStatement.setInt(1, id);
+        ResultSet result=pStatement.executeQuery();
+        Track track=null;
+        if (result.next()) {
+            int artistId=result.getInt("artist_id");
+            int item_id=result.getInt("item_id");
+            track=new Track(id,getArtist(artistId),getItem(item_id),
+                    result.getString("title"),result.getInt("track_number"));
+            if (result.getString("composer")!=null) {
+                track.setComposer(result.getString("composer"));
+            }
+            if (result.getString("duration")!=null) {
+                track.setComposer(result.getString("duration"));
+            }
+            track.isVideo=result.getBoolean("isvideo");
+        }
+        result.close();
+        pStatement.close();
+        return track;
+    }
+
+    public List<Track> getLastTracks() throws SQLException {
+        PreparedStatement pStatement = connection.prepareStatement(
+                "select id from tracks where rownum<=5 order by id desc");
+        pStatement.execute();
+        ResultSet result = pStatement.getResultSet();
+        ArrayList<Track> tracks = new ArrayList<Track>();
+        //TODO optimization
+        while (result.next()) {
+            int id = result.getInt(1);
+            tracks.add(this.getTrack(id));
+        }
+        result.close();
+        pStatement.close();
+        return tracks;
+    }
+
+    public void addTrack(Track track) throws SQLException {
+        PreparedStatement pStatement = connection.prepareStatement(
+                "insert into tracks values(null,?,?,?,?,?,?,?)");
+        pStatement.setInt(1,track.getArtist().getId());
+        pStatement.setInt(2, track.getItem().getId());
+        pStatement.setString(3, track.getTitle());
+        pStatement.setInt(4, track.getTrackNumber());
+        if (track.getComposer()==null) {
+            pStatement.setNull(5, Types.VARCHAR);
+        } else {
+            pStatement.setString(5, track.getComposer());
+        }
+        if (track.getDuration()==null) {
+            pStatement.setNull(6, Types.VARCHAR);
+        } else {
+            pStatement.setString(6, track.getDuration());
+        }
+        pStatement.setBoolean(7, track.isVideo);
+        pStatement.executeUpdate();
+        pStatement.close();
+    }
+
+    public void updateTrack(Track track) throws SQLException {
+        PreparedStatement pStatement = connection.prepareStatement(
+                "update tracks set artist_id=?,item_id=?,title=?," +
+                "track_number=?,composer=?,duration=?,isvideo=? where id=?");
+        pStatement.setInt(1,track.getArtist().getId());
+        pStatement.setInt(2, track.getItem().getId());
+        pStatement.setString(3, track.getTitle());
+        pStatement.setInt(4, track.getTrackNumber());
+        if (track.getComposer()==null) {
+            pStatement.setNull(5, Types.VARCHAR);
+        } else {
+            pStatement.setString(5, track.getComposer());
+        }
+        if (track.getDuration()==null) {
+            pStatement.setNull(6, Types.VARCHAR);
+        } else {
+            pStatement.setString(6, track.getDuration());
+        }
+        pStatement.setBoolean(7, track.isVideo);
+        pStatement.setInt(8, track.getId());
+        pStatement.executeUpdate();
+        pStatement.close();
+    }
+
+    public void deleteTrack(int id) throws SQLException {
+        PreparedStatement pStatement = connection.prepareStatement(
+                "delete from tracks where id=?");
+        pStatement.setInt(1, id);
+        pStatement.executeUpdate();
+        pStatement.close();
+    }
+
+    public static Distributor registerDistributor(String type,String title,String country) {
+        return new Distributor(1, type, title, country);
+    }
+
+    public Distributor getDistributor(int id) throws SQLException {
+        PreparedStatement pStatement = connection.prepareStatement(
+                "select * from distributors where id=?");
+        pStatement.setInt(1, id);
+        ResultSet result=pStatement.executeQuery();
+        Distributor distributor=null;
+        if (result.next()) {
+            distributor=new Distributor(id, result.getString("d_type"),
+                    result.getString("title"), result.getString("country"));
+        }
+        pStatement.close();
+        return distributor;
+    }
+
+    public List<Distributor> getLastDistributors() throws SQLException {
+        PreparedStatement pStatement = connection.prepareStatement(
+                "select id from distributors where rownum<=5 order by id desc");
+        pStatement.execute();
+        ResultSet result = pStatement.getResultSet();
+        ArrayList<Distributor> distributors = new ArrayList<Distributor>();
+        //TODO optimization
+        while (result.next()) {
+            int id = result.getInt(1);
+            distributors.add(this.getDistributor(id));
+        }
+        result.close();
+        pStatement.close();
+        return distributors;
+    }
+
+    public void addDistributor(Distributor distributor) throws SQLException {
+        PreparedStatement pStatement = connection.prepareStatement(
+                "insert into distributors values (null,?,?,?)");
+        pStatement.setString(1, distributor.getType());
+        pStatement.setString(2,distributor.getTitle());
+        pStatement.setString(3, distributor.getCountry());
+        pStatement.executeUpdate();
+        pStatement.close();
+    }
+
+    public void updateDistributor(Distributor distributor) throws SQLException {
+        PreparedStatement pStatement = connection.prepareStatement(
+                "update distributors set d_type=?,title=?,country=? where id=?");
+        pStatement.setString(1, distributor.getType());
+        pStatement.setString(2, distributor.getTitle());
+        pStatement.setString(3, distributor.getCountry());
+        pStatement.setInt(4, distributor.getId());
+        pStatement.executeUpdate();
+        pStatement.close();
+    }
+
+    public void deleteDistributor(int id) throws SQLException {
+        PreparedStatement pStatement = connection.prepareStatement(
+                "delete from distributors where id=?");
         pStatement.setInt(1, id);
         pStatement.executeUpdate();
         pStatement.close();

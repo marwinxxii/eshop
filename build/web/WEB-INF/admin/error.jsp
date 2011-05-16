@@ -12,6 +12,10 @@ if (cookies==null || cookies.length==0) {
     for (Cookie c:cookies) {
         if (c.getName().equals("errorCode")) {
             errorCode=Integer.valueOf(c.getValue());
+            if (errorCode==0) {
+                //TODO redirect to return?
+                response.sendRedirect("/admin");
+            }
         }
         if (c.getName().equals("return")) {
             returnPath=c.getValue();
@@ -20,6 +24,9 @@ if (cookies==null || cookies.length==0) {
         }
     }
     message=messages.getString("messages.error."+errorCode);
+    Cookie c=new Cookie("errorCode", "0");
+    c.setPath("/admin");
+    response.addCookie(c);
 %>
 <h1><%= message %></h1><br/>
 <a href="<%= returnPath %>"><%= messages.getString("messages.return") %></a>

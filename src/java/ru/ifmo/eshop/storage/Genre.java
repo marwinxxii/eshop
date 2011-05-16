@@ -5,15 +5,13 @@ package ru.ifmo.eshop.storage;
  * Date: 03.03.11
  * Time: 23:01
  */
-public class Genre {
+public class Genre extends Entity {
     public static final int TITLE_LENGTH=40;
     public static final int DESCRIPTION_LENGTH=300;
 
     private int id;
     private String title;
     private String description;
-
-    public Genre() {}
 
     public Genre(int id, String title, String description) {
         if (id <= 0) {
@@ -73,5 +71,9 @@ public class Genre {
         }
         //if mandatory field is null, then this is illegal state
         return title.equals(g.title) && description.equals(g.description);
+    }
+
+    public static Genre registerGenre(int id) {
+        return new Genre(id,"genre","genre");
     }
 }

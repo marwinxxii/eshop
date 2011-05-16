@@ -11,11 +11,15 @@
             || title.value.length > <%= Genre.TITLE_LENGTH %>) {
             error=true;
             title.style.border='1px solid #f00';
+        } else {
+            title.style.boeder='';
         }
         if (desc.value==null || desc.value.length==0
             || desc.value.length > <%= Genre.DESCRIPTION_LENGTH %>) {
             error=true;
             desc.style.border='1px solid #f00';
+        } else {
+            desc.style.border='';
         }
         if (error) {
             event.preventDefault();
@@ -41,30 +45,32 @@ if (error) {%>
 <b><%= messages.getString("admin.forms.genres.add") %></b><br/><br/>
 <form method="post" action="/admin/genre" id="genreForm" onsubmit="onSubmit(event);">
     <input type="hidden" name="act" value="add"/>
-    <%= messages.getString("admin.forms.genres.title") %>:
+    <%= messages.getString("admin.forms.genres.title") %><span class="red">*</span>:
     <input type="text" name="title" id="title"/>
     <small><%= messages.getString("admin.forms.genres.title.notice") %></small><br/>
-    <%= messages.getString("admin.forms.genres.desc") %>:<br/>
+    <%= messages.getString("admin.forms.genres.desc") %><span class="red">*</span>:<br/>
     <textarea name="description" rows="10" cols="80" id="desc"></textarea><br/>
     <small><%= messages.getString("admin.forms.genres.desc.notice") %></small><br/>
     <input type="submit" value="<%= messages.getString("forms.submit") %>"/>
 </form>
+<br/><small><%= messages.getString("forms.mandatory") %></small>
 <%} else {%>
-<storage:getGenre identity="<%= request.getParameter("id") %>"
+<storage:record entity="Genre" identity="<%= request.getParameter("id") %>"
 message="<%= messages.getString("messages.genre.lost")%>">
 <b><%= messages.getString("admin.forms.genres.edit") %></b><br/><br/>
 <form method="post" action="/admin/genre" id="genreForm" onsubmit="onSubmit(event);">
     <input type="hidden" name="act" value="save"/>
     <input type="hidden" name="id" value="<storage:genre field="id"/>"/>
-    <%= messages.getString("admin.forms.genres.title") %>:
+    <%= messages.getString("admin.forms.genres.title") %><span class="red">*</span>:
     <input type="text" name="title" id="title" value="<storage:genre field="title"/>"/>
     <small><%= messages.getString("admin.forms.genres.title.notice") %></small><br/>
-    <%= messages.getString("admin.forms.genres.desc") %>:<br/>
+    <%= messages.getString("admin.forms.genres.desc") %><span class="red">*</span>:<br/>
     <textarea name="description" id="desc" rows="10" cols="80"><storage:genre field="description"/></textarea>
     <br/>
     <small><%= messages.getString("admin.forms.genres.desc.notice") %></small><br/>
     <input type="submit" value="<%= messages.getString("forms.save") %>"/>
 </form>
-</storage:getGenre>
+<br/><small><%= messages.getString("forms.mandatory") %></small>
+</storage:record>
 <% }
 }%>

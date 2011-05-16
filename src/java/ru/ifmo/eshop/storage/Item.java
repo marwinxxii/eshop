@@ -3,7 +3,7 @@ package ru.ifmo.eshop.storage;
 import java.sql.Date;
 import java.util.List;
 
-public class Item {
+public class Item extends Entity {
 
     public static final int MEDIATYPE_LENGTH=20;
     public static final int FORMAT_LENGTH=20;
@@ -77,9 +77,10 @@ public class Item {
     }
 
     public void setLabel(Label label) {
-        if (label == null) {
+        /*if (label == null) {
             throw new IllegalArgumentException();
-        }
+        }*/
+        //TODO label==null?
         this.label = label;
     }
 
@@ -99,9 +100,10 @@ public class Item {
     }
 
     public void setCover(String cover) {
-        if (cover == null || cover.length() > COVER_LENGTH) {
+        if (cover != null && cover.length() > COVER_LENGTH) {
             throw new IllegalArgumentException();
         }
+        //TODO cover==null?
         this.cover = cover;
     }
 
@@ -109,13 +111,13 @@ public class Item {
         return releaseDate;
     }
 
-    public void setReleaseDate(Date releaseDate) {
+    /*public void setReleaseDate(Date releaseDate) {
         //TODO check relDate
         if (releaseDate == null) {
             throw new IllegalArgumentException();
         }
         this.releaseDate = releaseDate;
-    }
+    }*/
 
     public int getId() {
         return id;
@@ -126,7 +128,8 @@ public class Item {
     }
 
     public void setArtists(List<Artist> artists) {
-        if (artists == null || artists.isEmpty()) {
+        //TODO empty list
+        if (artists == null){// || artists.isEmpty()) {
             throw new IllegalArgumentException();
         }
         this.artists = artists;

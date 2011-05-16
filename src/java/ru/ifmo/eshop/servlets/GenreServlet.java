@@ -1,8 +1,10 @@
 package ru.ifmo.eshop.servlets;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.SQLException;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -43,72 +45,102 @@ public class GenreServlet extends HttpServlet {
         //TODO check user role
         String act=request.getParameter("act");
         boolean add=true;
+        boolean delete=false;
         if (act!=null && act.equals("save")) {
+            add=false;
+        } else if (act!=null && act.equals("del")) {
+            delete=true;
             add=false;
         }
         boolean error=false;
-        String mes="";
-        String title=request.getParameter("title");
-        String description=request.getParameter("description");
-        if (title==null || title.isEmpty()) {
-            error=true;
-            mes="title null";
-        } else if (title.length()>Genre.TITLE_LENGTH) {
-            error=true;
-            mes="title long";
+        String title=null;
+        String description=null;
+        PrintWriter writer=response.getWriter();
+        int ids[]=null;
+        if (!delete) {
+            title=request.getParameter("title");
+            description=request.getParameter("description");
+            if (title==null || title.isEmpty()) {
+                error=true;
+                writer.println("Title have to be set");
+            } else if (title.length()>Genre.TITLE_LENGTH) {
+                error=true;
+                writer.println("Title is too long");
+            }
+            if (description==null || description.isEmpty()) {
+                error=true;
+                writer.println("Description have to be set");
+            } else if (description.length()>Genre.DESCRIPTION_LENGTH) {
+                error=true;
+                writer.println("Description is too long");
+            }
+            /*if (error) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+                return;
+            }*/
+        } else {
+            String genres=request.getParameter("ids");
+            if(genres==null || genres.isEmpty()) {
+                error=true;
+            } else {
+                int i=0;
+                String gs[]=genres.split(",");
+                ids=new int[gs.length];
+                for (String g:gs) {
+                    ids[i++]=Integer.parseInt(g);
+                }
+            }
         }
-        if (description==null || description.isEmpty()) {
-            error=true;
-            mes="desc null";
-        } else if (description.length()>Genre.DESCRIPTION_LENGTH) {
-            error=true;
-            mes="desc long";
-            mes+=description;
-        }
-        /*if (error) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-            return;
-        }*/
         int id=0;
-        if (!add) {
+        if (!add && !delete) {
             String  sid=request.getParameter("id");
             if (sid==null || sid.isEmpty()) {
                 error=true;
-                mes="id null";
+                writer.println("ID is null");
             } else {
                 try {
-                    id=Integer.valueOf(sid);
+                    id=Integer.parseInt(sid);
                     if (id<=0) error=true;
-                    mes="id<=0";
+                    writer.println("Wrong id");
                 } catch (NumberFormatException e) {
                     error=true;
-                    mes="numbfexc";
                 }
             }
         }
         if (error) {
             //response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-            //TODO remove later debug info
-            response.getWriter().println(mes);
             return;
         }
         try {
             StorageManager sm = Eshop.getStorageManager();
             if (add) {
                 sm.addGenre(title,description);
-            } else {
+            } else if (!delete) {
                 sm.updateGenre(id, title, description);
+            } else {
+                //TODO optimization
+                for (int i:ids) {
+                    sm.deleteGenre(i);
+                }
             }
             sm.close();
             response.sendRedirect("/admin/genres.jsp");
-        } catch (ClassNotFoundException ex) {
+        //} catch (ClassNotFoundException ex) {
+        } catch (Exception ex) {
             //TODO logging and exceptions
-            ex.printStackTrace(response.getWriter());
+            ex.printStackTrace();
             //response.sendError(HttpServletResponse.SC_BAD_GATEWAY);
-        } catch (SQLException ex) {
-            ex.printStackTrace(response.getWriter());
+            Cookie c=new Cookie("errorCode", "1");
+            c.setPath("/admin");
+            response.addCookie(c);
+            c=new Cookie("return","/admin/genres.jsp?act="+act+"&id="+id);
+            c.setPath("/admin");
+            response.addCookie(c);
+            response.sendRedirect("/admin/error.jsp");
+        }/* catch (SQLException ex) {
+            ex.printStackTrace();
             //response.sendError(HttpServletResponse.SC_BAD_GATEWAY);
-        }
+        }*/
     }
 
     /** 

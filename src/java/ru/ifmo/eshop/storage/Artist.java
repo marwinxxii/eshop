@@ -5,7 +5,7 @@ package ru.ifmo.eshop.storage;
  * Date: 20.03.11
  * Time: 21:37
  */
-public class Artist {
+public class Artist extends Entity {
 
     public static final int TITLE_LENGTH=30;
     public static final int COUNTRY_LENGTH=30;
@@ -14,11 +14,8 @@ public class Artist {
     private String title;
     private Genre genre;
     private String country;
-    private int beginYear;
-    private int endYear;
-
-    public Artist() {
-    }
+    private Integer beginYear=null;
+    private Integer endYear=null;
 
     public Artist(int id, String title, Genre genre) {
         if (id <= 0) {
@@ -74,27 +71,27 @@ public class Artist {
 
     public void setCountry(String country) {
         if (country == null || country.length() > COUNTRY_LENGTH) {
-            throw new IllegalArgumentException("Country is null or too long");
+            throw new IllegalArgumentException("Country name is null or too long");
         }
         this.country = country;
     }
 
-    public int getBeginYear() {
+    public Integer getBeginYear() {
         return beginYear;
     }
 
-    public void setBeginYear(int beginYear) {
+    public void setBeginYear(Integer beginYear) {
         if (beginYear <= 1000 || beginYear > 2011) {
             throw new IllegalArgumentException("Wrong year");
         }
         this.beginYear = beginYear;
     }
 
-    public int getEndYear() {
+    public Integer getEndYear() {
         return endYear;
     }
 
-    public void setEndYear(int endYear) {
+    public void setEndYear(Integer endYear) {
         if (endYear <= 1000) {
             throw new IllegalArgumentException("Wrong year");
         }

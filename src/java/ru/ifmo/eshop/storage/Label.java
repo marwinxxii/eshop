@@ -5,7 +5,7 @@ package ru.ifmo.eshop.storage;
  * Date: 20.03.11
  * Time: 21:34
  */
-public class Label {
+public class Label extends Entity {
     public static final int TITLE_LENGTH=50;
     public static final int COUNTRY_LENGTH=30;
 
@@ -13,10 +13,22 @@ public class Label {
     private String title;
     private String country;
 
-    public Label() {
+    public Label(int id, String title) {
+        if (id <= 0) {
+            throw new IllegalArgumentException("id is lesser than zero");
+        }
+        if (title == null || title.isEmpty()) {
+            throw new IllegalArgumentException("Title have to be set");
+        }
+        if (title.length() >TITLE_LENGTH) {
+            throw new IllegalArgumentException("Title is too long");
+        }
+        this.id = id;
+        this.title = title;
+        this.country = "";
     }
 
-    public Label(int id, String title, String country) {
+    /*public Label(int id, String title, String country) {
         if (id <= 0) {
             throw new IllegalArgumentException("id is lesser than zero");
         }
@@ -33,22 +45,7 @@ public class Label {
         this.id = id;
         this.title = title;
         this.country = country;
-    }
-
-    public Label(int id, String title) {
-        if (id <= 0) {
-            throw new IllegalArgumentException("id is lesser than zero");
-        }
-        if (title == null || title.isEmpty()) {
-            throw new IllegalArgumentException("Title have to be set");
-        }
-        if (title.length() >TITLE_LENGTH) {
-            throw new IllegalArgumentException("Title is too long");
-        }
-        this.id = id;
-        this.title = title;
-        this.country = "";
-    }
+    }*/
 
     public int getId() {
         return id;

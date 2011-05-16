@@ -1,4 +1,4 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="/WEB-INF/tlds/template.tld" prefix="template" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="java.util.MissingResourceException" %>
@@ -74,7 +74,9 @@ pageContext.setAttribute("resourceBundle", messages,PageContext.REQUEST_SCOPE);
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <link type="text/css" rel="stylesheet" href="/static/main.css" />
+        <link type="text/css" rel="stylesheet" href="/admin/static/admin.css" />
         <title><%= messages.getString("admin.title") %></title>
+        <template:get name="scripts"/>
     </head>
     <body>
         <div align="center">

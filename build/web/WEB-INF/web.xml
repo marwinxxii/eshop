@@ -8,6 +8,22 @@
         <servlet-name>LabelServlet</servlet-name>
         <servlet-class>ru.ifmo.eshop.servlets.LabelServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ArtistServlet</servlet-name>
+        <servlet-class>ru.ifmo.eshop.servlets.ArtistServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ItemServlet</servlet-name>
+        <servlet-class>ru.ifmo.eshop.servlets.ItemServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>TrackServlet</servlet-name>
+        <servlet-class>ru.ifmo.eshop.servlets.TrackServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DistributorServlet</servlet-name>
+        <servlet-class>ru.ifmo.eshop.servlets.DistributorServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>GenreServlet</servlet-name>
         <url-pattern>/admin/genre</url-pattern>
@@ -23,6 +39,22 @@
     <servlet-mapping>
         <servlet-name>LabelServlet</servlet-name>
         <url-pattern>/admin/label</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ArtistServlet</servlet-name>
+        <url-pattern>/admin/artist</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ItemServlet</servlet-name>
+        <url-pattern>/admin/item</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>TrackServlet</servlet-name>
+        <url-pattern>/admin/track</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DistributorServlet</servlet-name>
+        <url-pattern>/admin/distributor</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

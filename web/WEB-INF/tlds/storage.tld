@@ -7,9 +7,14 @@
 	<jspversion>1.1</jspversion>
 	<shortname>Storage Tags</shortname>
 	<tag>
-		<name>getGenre</name>
-		<tagclass>ru.ifmo.eshop.tags.storage.GenreTag</tagclass>
+		<name>record</name>
+		<tagclass>ru.ifmo.eshop.tags.storage.RecordTag</tagclass>
 		<bodycontent>JSP</bodycontent>
+                <attribute>
+			<name>entity</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
 		<attribute>
 			<name>identity</name>
 			<required>true</required>
@@ -37,14 +42,84 @@
                         <type>int</type>
 		</attribute>
 	</tag>
-	<!--<tag>
-		<name>get</name>
-		<tagclass>ru.ifmo.eshop.tags.templates.GetTag</tagclass>
+	<tag>
+		<name>label</name>
+		<tagclass>ru.ifmo.eshop.tags.storage.LabelObjectTag</tagclass>
 		<bodycontent>JSP</bodycontent>
 		<attribute>
-			<name>name</name>
+			<name>field</name>
 			<required>true</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
-	</tag>-->
+                <attribute>
+			<name>length</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+                        <type>int</type>
+		</attribute>
+	</tag>
+        <tag>
+		<name>artist</name>
+		<tagclass>ru.ifmo.eshop.tags.storage.ArtistTag</tagclass>
+		<bodycontent>JSP</bodycontent>
+		<attribute>
+			<name>field</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+                <attribute>
+			<name>length</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+                        <type>int</type>
+		</attribute>
+	</tag>
+        <tag>
+		<name>item</name>
+		<tagclass>ru.ifmo.eshop.tags.storage.ItemTag</tagclass>
+		<bodycontent>JSP</bodycontent>
+		<attribute>
+			<name>field</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+                <attribute>
+			<name>length</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+                        <type>int</type>
+		</attribute>
+	</tag>
+        <tag>
+		<name>track</name>
+		<tagclass>ru.ifmo.eshop.tags.storage.TrackTag</tagclass>
+		<bodycontent>JSP</bodycontent>
+		<attribute>
+			<name>field</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+                <attribute>
+			<name>length</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+                        <type>int</type>
+		</attribute>
+	</tag>
+        <tag>
+		<name>distributor</name>
+		<tagclass>ru.ifmo.eshop.tags.storage.DistributorTag</tagclass>
+		<bodycontent>JSP</bodycontent>
+		<attribute>
+			<name>field</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+                <attribute>
+			<name>length</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+                        <type>int</type>
+		</attribute>
+	</tag>
 </taglib>
