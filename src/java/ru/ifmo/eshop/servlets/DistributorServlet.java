@@ -65,7 +65,7 @@ public class DistributorServlet extends HttpServlet {
                     id=Integer.parseInt(temp);
                 } catch(NumberFormatException e) {
                     error=true;
-                    writer.println("Wrong id of item");
+                    writer.println("Wrong id of distributor");
                 }
             }
             String title=request.getParameter("title");

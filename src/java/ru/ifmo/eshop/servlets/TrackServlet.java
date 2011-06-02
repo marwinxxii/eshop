@@ -161,7 +161,7 @@ public class TrackServlet extends HttpServlet {
                 sm.updateTrack(track);
             }
             sm.close();
-            response.sendRedirect("/admin/tracks.jsp");
+            response.sendRedirect("/admin/tracks");
         } catch(Exception e) {
             e.printStackTrace();
             Cookie c=new Cookie("errorCode", "1");

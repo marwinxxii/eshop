@@ -67,6 +67,8 @@ public class RecordTag extends TagSupport {
                     records=sm.getLastTracks();
                 } else if (entity.equals("Distributor")) {
                     records=sm.getLastDistributors();
+                } else if (entity.equals("Delivery")) {
+                    records=sm.getLastDeliveries();
                 } else {
                     throw new JspException("Wrong entity type");
                 }
@@ -91,6 +93,8 @@ public class RecordTag extends TagSupport {
                         record=sm.getTrack(i);
                     } else if (entity.equals("Distributor")) {
                         record=sm.getDistributor(i);
+                    } else if (entity.equals("Delivery")) {
+                        record=sm.getDelivery(i);
                     } else {
                         throw new JspException("Wrong entity type");
                     }

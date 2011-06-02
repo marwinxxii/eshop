@@ -24,6 +24,10 @@
         <servlet-name>DistributorServlet</servlet-name>
         <servlet-class>ru.ifmo.eshop.servlets.DistributorServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>DeliveryServlet</servlet-name>
+        <servlet-class>ru.ifmo.eshop.servlets.DeliveryServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>GenreServlet</servlet-name>
         <url-pattern>/admin/genre</url-pattern>
@@ -55,6 +59,10 @@
     <servlet-mapping>
         <servlet-name>DistributorServlet</servlet-name>
         <url-pattern>/admin/distributor</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DeliveryServlet</servlet-name>
+        <url-pattern>/admin/delivery</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

@@ -44,6 +44,10 @@ public class TrackTag extends EntityTag {
             } else {
                 content="False";
             }
+        } else if (field.equals("item.title")) {
+            content=t.getItem().getTitle();
+        } else if (field.equals("artist.title")) {
+            content=t.getArtist().getTitle();
         } else {
             throw new JspException("TrackTag:Wrong field name");
         }

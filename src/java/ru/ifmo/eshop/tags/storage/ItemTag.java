@@ -37,6 +37,8 @@ public class ItemTag extends EntityTag {
             }
         } else if (field.equals("releaseDate")) {
             content=i.getReleaseDate().toString();//TODO date format
+        } else if (field.equals("label.title")) {
+            content=i.getLabel().getTitle();
         } else {
             throw new JspException("ItemTag:Wrong field name");
         }

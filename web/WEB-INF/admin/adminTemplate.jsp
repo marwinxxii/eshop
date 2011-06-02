@@ -22,7 +22,7 @@ if (request.getParameter("locale") != null) {
         c.setMaxAge(315360000);
         response.addCookie(c);
     }
-    } else {
+} else {
     lang = "en";
     Cookie[] cookies = request.getCookies();
     if (cookies == null) {
@@ -59,6 +59,7 @@ if (request.getParameter("locale") != null) {
     }
 }
 ResourceBundle messages;
+
 try {
     messages = ResourceBundle.getBundle("ru.ifmo.eshop.i18n.MessagesBundle", locale);
 } catch (MissingResourceException e) {
@@ -90,5 +91,10 @@ pageContext.setAttribute("resourceBundle", messages,PageContext.REQUEST_SCOPE);
                 <template:get name="content"/>
             </div>
         </div>
+            <br/>
+            <center>
+                <a href="?locale=en">English</a> |
+                <a href="?locale=ru">Русский</a>
+            </center>
     </body>
 </html>

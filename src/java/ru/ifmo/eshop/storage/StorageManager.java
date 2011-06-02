@@ -24,6 +24,7 @@ public class StorageManager {
     private Connection connection;
     private static Genre emptyGenre=new Genre(1,"title","desc");
     private static Item emptyItem=new Item(1,"cd","LP","title",new Date(System.currentTimeMillis()));
+    private static Distributor emptyDistributor=new Distributor(1,"type","title","country");
 
     public StorageManager(String host, int port, String login, String password)
             throws ClassNotFoundException, SQLException {
@@ -143,7 +144,7 @@ public class StorageManager {
 
     public List<Item> getLastItems() throws SQLException {
         PreparedStatement pStatement = connection.prepareStatement(
-                "select id from items where rownum<4 order by id desc");
+                "select id from items where rownum<=5 order by id desc");
         //execute because query should return more than one row
         pStatement.execute();
         ResultSet result = pStatement.getResultSet();
@@ -151,7 +152,8 @@ public class StorageManager {
         //TODO optimization
         while (result.next()) {
             int id = result.getInt(1);
-            items.add(this.getItem(id));
+            Item i=this.getItem(id);
+            if (i!=null) items.add(i);
         }
         result.close();
         pStatement.close();
@@ -244,8 +246,15 @@ public class StorageManager {
         pStatement.close();
     }
 
-    public void deleteGenre(int id) throws SQLException {
-        PreparedStatement pStatement = connection.prepareStatement(
+    public void deleteGenre(int id,boolean deleteDeps) throws SQLException {
+        PreparedStatement pStatement;
+        if (deleteDeps) {
+            pStatement=connection.prepareStatement("delete from artists where genre_id=?");
+            pStatement.setInt(1, id);
+            pStatement.executeUpdate();
+            pStatement.close();
+        }
+        pStatement = connection.prepareStatement(
                 "delete from genres where id=?");
         pStatement.setInt(1, id);
         pStatement.executeUpdate();
@@ -262,7 +271,8 @@ public class StorageManager {
         //TODO optimization
         while (result.next()) {
             int id = result.getInt(1);
-            genres.add(this.getGenre(id));
+            Genre g=this.getGenre(id);
+            if (g!=null) genres.add(g);
         }
         result.close();
         pStatement.close();
@@ -300,7 +310,8 @@ public class StorageManager {
         //TODO optimization
         while (result.next()) {
             int id = result.getInt(1);
-            labels.add(this.getLabel(id));
+            Label l=this.getLabel(id);
+            if (l!=null) labels.add(l);
         }
         result.close();
         pStatement.close();
@@ -386,7 +397,8 @@ public class StorageManager {
         //TODO optimization
         while (result.next()) {
             int id = result.getInt(1);
-            artists.add(this.getArtist(id));
+            Artist a=this.getArtist(id);
+            if (a!=null) artists.add(a);
         }
         result.close();
         pStatement.close();
@@ -442,9 +454,15 @@ public class StorageManager {
         pStatement.close();
     }
 
-    //TODO think about deleting related objects
-    public void deleteArtist(int id) throws SQLException {
-        PreparedStatement pStatement = connection.prepareStatement(
+    public void deleteArtist(int id,boolean deleteDeps) throws SQLException {
+        PreparedStatement pStatement;
+        if (deleteDeps) {
+            pStatement=connection.prepareStatement("delete from tracks where artist_id=?");
+            pStatement.setInt(1, id);
+            pStatement.executeUpdate();
+            pStatement.close();
+        }
+        pStatement = connection.prepareStatement(
                 "delete from artists where id=?");
         pStatement.setInt(1, id);
         pStatement.executeUpdate();
@@ -501,7 +519,34 @@ public class StorageManager {
         //TODO optimization
         while (result.next()) {
             int id = result.getInt(1);
-            tracks.add(this.getTrack(id));
+            Track t=this.getTrack(id);
+            tracks.add(t);
+        }
+        result.close();
+        pStatement.close();
+        return tracks;
+    }
+
+    public List<Track> getTracksForItem(int id) throws SQLException {
+        PreparedStatement pStatement = connection.prepareStatement(
+                "select * from tracks where item_id=?");
+        pStatement.setInt(1, id);
+        ResultSet result=pStatement.executeQuery();
+        ArrayList<Track> tracks=new ArrayList<Track>();
+        Track track;
+        if (result.next()) {
+            int artistId=result.getInt("artist_id");
+            int item_id=result.getInt("item_id");
+            track=new Track(id,getArtist(artistId),getItem(item_id),
+                    result.getString("title"),result.getInt("track_number"));
+            if (result.getString("composer")!=null) {
+                track.setComposer(result.getString("composer"));
+            }
+            if (result.getString("duration")!=null) {
+                track.setComposer(result.getString("duration"));
+            }
+            track.isVideo=result.getBoolean("isvideo");
+            tracks.add(track);
         }
         result.close();
         pStatement.close();
@@ -589,7 +634,8 @@ public class StorageManager {
         //TODO optimization
         while (result.next()) {
             int id = result.getInt(1);
-            distributors.add(this.getDistributor(id));
+            Distributor d=this.getDistributor(id);
+            if (d!=null) distributors.add(d);
         }
         result.close();
         pStatement.close();
@@ -623,5 +669,149 @@ public class StorageManager {
         pStatement.setInt(1, id);
         pStatement.executeUpdate();
         pStatement.close();
+    }
+
+    public Delivery getDelivery(int id) throws SQLException {
+        PreparedStatement pStatement = connection.prepareStatement(
+                "select * from deliveries where id=?");
+        pStatement.setInt(1, id);
+        ResultSet result=pStatement.executeQuery();
+        Delivery delivery=null;
+        if (result.next()) {
+            /*PreparedStatement ps = connection.prepareStatement(
+                "select * from distributors where id=?");
+            ps.setInt(1, result.getInt("distributor_id"));
+            ResultSet res=ps.executeQuery();
+            res.next();
+            Distributor d=new Distributor(res.getInt(1),
+                    res.getString("d_type"),res.getString("title"),
+                    res.getString("country"));*/
+            Distributor d=this.getDistributor(result.getInt("distributor_id"));
+            delivery=new Delivery(id,d,result.getDate("order_date"),
+                    result.getDate("deliver_date"));
+            ArrayList<DeliveryItem> items=new ArrayList<DeliveryItem>();
+            PreparedStatement ps = connection.prepareStatement(
+                "select * from deliver_lists where deliver_id=?");
+            ps.setInt(1, id);
+            ps.execute();
+            ResultSet res=ps.getResultSet();
+            while(res.next()) {
+                Item i=this.getItem(res.getInt("item_id"));
+                DeliveryItem di=new DeliveryItem(i, res.getInt("amount"),
+                        res.getDouble("price"));
+                items.add(di);
+            }
+            delivery.setItems(items);
+        }
+        pStatement.close();
+        return delivery;
+    }
+
+    public List<Delivery> getLastDeliveries() throws SQLException {
+        PreparedStatement pStatement = connection.prepareStatement(
+                "select id from deliveries where rownum<=5 order by id desc");
+        pStatement.execute();
+        ResultSet result = pStatement.getResultSet();
+        ArrayList<Delivery> deliveries = new ArrayList<Delivery>();
+        //TODO optimization
+        while (result.next()) {
+            int id = result.getInt(1);
+            Delivery d=this.getDelivery(id);
+            if (d!=null) deliveries.add(d);
+        }
+        pStatement.close();
+        return deliveries;
+    }
+
+    public void addDelivery(Delivery delivery) throws SQLException {
+        connection.setAutoCommit(false);
+        PreparedStatement pStatement = connection.prepareStatement(
+                "insert into deliveries values(null,?,?,?)");
+        pStatement.setInt(1, delivery.getDistributor().getId());
+        pStatement.setDate(2, delivery.getOrderDate());
+        pStatement.setDate(3, delivery.getDeliverDate());
+        pStatement.executeUpdate();
+        pStatement.close();
+        pStatement=connection.prepareStatement(
+                "select max(id) from deliveries");
+        ResultSet result=pStatement.executeQuery();
+        if (!result.next()) {
+            connection.rollback();
+            return;
+        }
+        int id=result.getInt(1);
+        pStatement.close();
+        result.close();
+        pStatement= connection.prepareStatement(
+                "insert into deliver_lists values(?,?,?,?)");
+        for (DeliveryItem deliveryItem:delivery.getItems()) {
+            pStatement.setInt(1, id);
+            pStatement.setInt(2, deliveryItem.getItem().getId());
+            pStatement.setInt(3, deliveryItem.getAmount());
+            pStatement.setDouble(4, deliveryItem.getPrice());
+            pStatement.executeUpdate();
+            //pStatement.close();
+        }
+        pStatement.close();
+        connection.commit();
+        connection.setAutoCommit(true);
+    }
+
+    public void updateDelivery(Delivery delivery) throws SQLException {
+        connection.setAutoCommit(false);
+        PreparedStatement pStatement = connection.prepareStatement(
+                "update deliveries set distributor_id=?,order_date=?, deliver_date=? where id=?");
+        pStatement.setInt(1, delivery.getDistributor().getId());
+        pStatement.setDate(2, delivery.getOrderDate());
+        pStatement.setDate(3, delivery.getDeliverDate());
+        pStatement.setInt(4, delivery.getId());
+        if (pStatement.executeUpdate()==0) {
+            connection.rollback();
+            connection.setAutoCommit(true);
+            return;
+        }
+        pStatement.close();
+        pStatement = connection.prepareStatement(
+                "update deliver_lists set amount=?, price=? where deliver_id=? and item_id=?");
+        for (DeliveryItem deliveryItem:delivery.getItems()) {
+            pStatement.setInt(1, deliveryItem.getAmount());
+            pStatement.setDouble(2, deliveryItem.getPrice());
+            pStatement.setInt(3, delivery.getId());
+            pStatement.setInt(4, deliveryItem.getItem().getId());
+            pStatement.executeUpdate();
+            //pStatement.close();
+        }
+        pStatement.close();
+        connection.commit();
+        connection.setAutoCommit(true);
+    }
+
+    public void deleteDelivery(int id) throws SQLException {
+        connection.setAutoCommit(false);
+        PreparedStatement pStatement = connection.prepareStatement(
+                "delete from deliveries where id=?");
+        pStatement.setInt(1, id);
+        if (pStatement.executeUpdate()==0) {
+            connection.rollback();
+            connection.setAutoCommit(true);
+            return;
+        }
+        pStatement.close();
+        pStatement = connection.prepareStatement(
+                "delete from deliver_lists where deliver_id=?");
+        pStatement.setInt(1, id);
+        if (pStatement.executeUpdate()==0) {
+            connection.rollback();
+            connection.setAutoCommit(true);
+            return;
+        }
+        pStatement.close();
+        connection.commit();
+    }
+
+    public static Delivery registerDelivery(Integer distributorId,Date orderDate, Date deliverDate) {
+        return new Delivery(1,
+                new Distributor(distributorId, "type", "title", "country"),
+                orderDate,deliverDate);
     }
 }

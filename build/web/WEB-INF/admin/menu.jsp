@@ -13,4 +13,5 @@ ResourceBundle messages=(ResourceBundle)pageContext.getAttribute("resourceBundle
     <li><a href="/admin/tracks.jsp"><%= messages.getString("admin.menu.tracks") %></a></li>
     <li><a href="/admin/items.jsp"><%= messages.getString("admin.menu.items") %></a></li>
     <li><a href="/admin/distributors.jsp"><%= messages.getString("admin.menu.distributors") %></a></li>
+    <li><a href="/admin/deliveries.jsp"><%= messages.getString("admin.menu.deliveries") %></a></li>
 </ul>

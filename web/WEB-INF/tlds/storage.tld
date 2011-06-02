@@ -122,4 +122,35 @@
                         <type>int</type>
 		</attribute>
 	</tag>
+        <tag>
+		<name>delivery</name>
+		<tagclass>ru.ifmo.eshop.tags.storage.DeliveryTag</tagclass>
+		<bodycontent>JSP</bodycontent>
+		<attribute>
+			<name>field</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+                <!--<attribute>
+			<name>length</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+                        <type>int</type>
+		</attribute>-->
+	</tag>
+        <tag>
+		<name>deliveryItem</name>
+		<tagclass>ru.ifmo.eshop.tags.storage.DeliveryItemTag</tagclass>
+		<bodycontent>JSP</bodycontent>
+		<attribute>
+			<name>field</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+	</tag>
+        <tag>
+		<name>deliveryList</name>
+		<tagclass>ru.ifmo.eshop.tags.storage.DeliveryListTag</tagclass>
+		<bodycontent>JSP</bodycontent>
+	</tag>
 </taglib>

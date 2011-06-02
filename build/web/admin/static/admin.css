@@ -6,3 +6,6 @@
 .red {
     color:#f00;
 }
+.column {
+    border-right: 1px solid #999;
+}

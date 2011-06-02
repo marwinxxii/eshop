@@ -120,7 +120,7 @@ public class GenreServlet extends HttpServlet {
             } else {
                 //TODO optimization
                 for (int i:ids) {
-                    sm.deleteGenre(i);
+                    sm.deleteGenre(i,false);
                 }
             }
             sm.close();

@@ -9,8 +9,8 @@
             && (request.getParameter("act").equals("add")
             || request.getParameter("act").equals("edit"))) {
         %>
-    <template:put name="content" content="/WEB-INF/admin/addArtist.jsp" />
+    <template:put name="content" content="/WEB-INF/admin/artists/add.jsp" />
     <% } else { %>
-    <template:put name="content" content="/WEB-INF/admin/artists.jsp" />
+    <template:put name="content" content="/WEB-INF/admin/artists/index.jsp" />
     <% }%>
 </template:insert>

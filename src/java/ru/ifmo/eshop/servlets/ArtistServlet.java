@@ -149,7 +149,7 @@ public class ArtistServlet extends HttpServlet {
             if (delete) {
                 //TODO optimize
                 for (int i:ids) {
-                    sm.deleteArtist(i);
+                    sm.deleteArtist(i,false);
                 }
             } else if (add) {
                 sm.addArtist(artist);

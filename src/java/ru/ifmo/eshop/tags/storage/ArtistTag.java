@@ -45,7 +45,7 @@ public class ArtistTag extends EntityTag {
             }
         //TODO think about requesting genre fields in another way
         } else if (field.equals("genre.title")) {
-            content=defaultValue;
+            content=a.getGenre().getTitle();
         } else {
             throw new JspException("ArtistTag:Wrong field name");
         }

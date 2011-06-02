@@ -28,6 +28,9 @@ public class EntityTag extends TagSupport {
     }
 
     public void setField(String field) {
+        if (field==null || field.isEmpty()) {
+            throw new IllegalArgumentException("Field name is null or empty");
+        }
         this.field=field;
     }
 
@@ -36,6 +39,15 @@ public class EntityTag extends TagSupport {
     }
 
     public void setLength(int length) {
+        if (length<=0) {
+            throw new IllegalArgumentException("Length is <=0");
+        }
         this.length=length;
+    }
+
+    @Override
+    public void release() {
+        field=null;
+        defaultValue=null;
     }
 }
