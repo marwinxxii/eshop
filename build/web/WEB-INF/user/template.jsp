@@ -165,7 +165,6 @@ pageContext.setAttribute("resourceBundle", messages,PageContext.REQUEST_SCOPE);
 </div>
 <div id="rightMenu">
 <div id="mmain">
-    <b><bundle:message key="user.items.last"/></b><br /><br />
     <template:get name="content"/>
 </div>
 </div>

@@ -74,8 +74,7 @@ pageContext.setAttribute("resourceBundle", messages,PageContext.REQUEST_SCOPE);
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <link type="text/css" rel="stylesheet" href="/static/main.css" />
-        <link type="text/css" rel="stylesheet" href="/admin/static/admin.css" />
+        <link type="text/css" rel="stylesheet" href="/admin/static/main.css" />
         <title><%= messages.getString("admin.title") %></title>
         <template:get name="scripts"/>
     </head>

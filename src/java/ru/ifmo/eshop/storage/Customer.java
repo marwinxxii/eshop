@@ -12,13 +12,12 @@ public class Customer extends Entity {
 
     public Customer(Integer id,String email) {
         if (id==null || id<=0)
-            throw new IllegalArgumentException("is is nul or <=0");
+            throw new IllegalArgumentException("id is null or <=0");
         if (email==null || email.isEmpty()) {
             throw new IllegalArgumentException("Email is null or empty");
         }
         this.id=id;
-        //TODO check email with regexp
-        this.email=email;
+        this.email=email;//TODO check email with regexp
     }
 
     public Integer getId() {
