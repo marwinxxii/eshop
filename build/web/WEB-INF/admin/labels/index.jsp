@@ -30,30 +30,33 @@ ResourceBundle messages=(ResourceBundle)pageContext.getAttribute("resourceBundle
                 <b><bundle:message key="forms.actions"/></b>
             </td>
         </tr>
-        <storage:record identity="last" entity="Label"
+        <storage:manager/>
+        <storage:labels end="20"
         message="<%= "<tr><td colspan=4>"+messages.getString("messages.labels.notfound")+"</td></tr>" %>">
-            <tr>
-                <td class="column"><input type="checkbox" class="record"
-                           value="<storage:label field="id"/>"/></td>
-                <td class="column">
-                    <storage:label field="id"/>
-                </td>
-                <td class="column">
-                    <storage:label field="title"/>
-                </td>
-                <td class="column">
-                    <storage:label field="country"/>
-                </td>
-                <td>
-                    <a href="/admin/labels.jsp?act=edit&id=<storage:label field="id"/>">
-                        <bundle:message key="forms.edit"/>
-                    </a>
-                    <!--<a href="/admin/label?act=del&ids=<storage:label field="id"/>"
-                       onclick="return confirm('<bundle:message key="forms.delete"/>')">
-                    </a>-->
-                </td>
-            </tr>
-        </storage:record>
+            <storage:label>
+                <tr>
+                    <td class="column"><input type="checkbox" class="record"
+                               value="<storage:field name="id"/>"/></td>
+                    <td class="column">
+                        <storage:field name="id"/>
+                    </td>
+                    <td class="column">
+                        <storage:field name="title"/>
+                    </td>
+                    <td class="column">
+                        <storage:field name="country"/>
+                    </td>
+                    <td>
+                        <a href="/admin/labels.jsp?act=edit&id=<storage:field name="id"/>">
+                            <bundle:message key="forms.edit"/>
+                        </a>
+                        <!--<a href="/admin/label?act=del&ids=<storage:field name="id"/>"
+                           onclick="return confirm('<bundle:message key="forms.delete"/>')">
+                        </a>-->
+                    </td>
+                </tr>
+            </storage:label>
+        </storage:labels>
     </table><br/>
 <input type="submit" value="<bundle:message key="forms.delete"/>"
        onclick="deleteRecords(event)"/>

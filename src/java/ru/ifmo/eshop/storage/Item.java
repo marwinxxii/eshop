@@ -18,6 +18,7 @@ public class Item extends Entity {
     private String cover;
     private Date releaseDate;
     private List<Artist> artists;
+    private double price;
 
     public Item(int id, String mediaType, String format, String title, Date releaseDate) {
         if (id <= 0) {
@@ -133,5 +134,14 @@ public class Item extends Entity {
             throw new IllegalArgumentException();
         }
         this.artists = artists;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        if (price<=0.01) throw new IllegalArgumentException("incorrect price");
+        this.price = price;
     }
 }

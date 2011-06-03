@@ -29,31 +29,34 @@ ResourceBundle messages=(ResourceBundle)pageContext.getAttribute("resourceBundle
                 <b><%= messages.getString("forms.actions") %></b>
             </td>
         </tr>
-        <storage:record identity="last" entity="Genre"
+        <storage:manager/>
+        <storage:genres end="20"
         message="<%= "<tr><td colspan=4>"+messages.getString("messages.genres.notfound")+"</td></tr>" %>">
-            <tr>
-                <td class="column"><input type="checkbox" class="record"
-                           value="<storage:genre field="id"/>"/></td>
-                <td class="column">
-                    <storage:genre field="id"/>
-                </td>
-                <td class="column">
-                    <storage:genre field="title"/>
-                </td>
-                <td class="column">
-                    <storage:genre field="description" length="40"/>
-                </td>
-                <td class="column">
-                    <a href="/admin/genres.jsp?act=edit&id=<storage:genre field="id"/>">
-                        <%= messages.getString("forms.edit") %>
-                    </a>
-                    <!--<a href="/admin/genre?act=del&id=<storage:genre field="id"/>"
-                       onclick="return confirm('<%= messages.getString("confirm") %>')">
-                        <%= messages.getString("forms.delete") %>
-                    </a>-->
-                </td>
-            </tr>
-        </storage:record>
+            <storage:genre>
+                <tr>
+                    <td class="column"><input type="checkbox" class="record"
+                               value="<storage:field name="id"/>"/></td>
+                    <td class="column">
+                        <storage:field name="id"/>
+                    </td>
+                    <td class="column">
+                        <storage:field name="title"/>
+                    </td>
+                    <td class="column">
+                        <storage:field name="description" length="40"/>
+                    </td>
+                    <td class="column">
+                        <a href="/admin/genres.jsp?act=edit&id=<storage:field name="id"/>">
+                            <%= messages.getString("forms.edit") %>
+                        </a>
+                        <!--<a href="/admin/genre?act=del&id=<storage:field name="id"/>"
+                           onclick="return confirm('<%= messages.getString("confirm") %>')">
+                            <%= messages.getString("forms.delete") %>
+                        </a>-->
+                    </td>
+                </tr>
+            </storage:genre>
+        </storage:genres>
     </table><br/>
 <input type="submit" value="<%= messages.getString("forms.delete") %>"
        onclick="deleteRecords(event)"/>

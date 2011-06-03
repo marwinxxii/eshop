@@ -12,7 +12,7 @@
             error=true;
             title.style.border='1px solid #f00';
         } else {
-            title.style.boeder='';
+            title.style.border='';
         }
         if (desc.value==null || desc.value.length==0
             || desc.value.length > <%= Genre.DESCRIPTION_LENGTH %>) {
@@ -31,9 +31,15 @@ ResourceBundle messages=(ResourceBundle)pageContext.getAttribute("resourceBundle
 String act=request.getParameter("act");
 boolean add=true;
 boolean error=false;
+int id=0;
 if (act!=null && act.equals("edit")) {
     if (request.getParameter("id")!=null) {
         add=false;
+        try {
+            id=Integer.parseInt(request.getParameter("id"));
+        } catch(NumberFormatException e) {
+            error=true;
+        }
     } else {
         error=true;
     }
@@ -55,22 +61,23 @@ if (error) {%>
 </form>
 <br/><small><%= messages.getString("forms.mandatory") %></small>
 <%} else {%>
-<storage:record entity="Genre" identity="<%= request.getParameter("id") %>"
+<storage:manager/>
+<storage:genre keyId="<%= id %>"
 message="<%= messages.getString("messages.genre.lost")%>">
 <b><%= messages.getString("admin.forms.genres.edit") %></b><br/><br/>
 <form method="post" action="/admin/genre" id="genreForm" onsubmit="onSubmit(event);">
     <input type="hidden" name="act" value="save"/>
-    <input type="hidden" name="id" value="<storage:genre field="id"/>"/>
+    <input type="hidden" name="id" value="<storage:field name="id"/>"/>
     <%= messages.getString("admin.forms.genres.title") %><span class="red">*</span>:
-    <input type="text" name="title" id="title" value="<storage:genre field="title"/>"/>
+    <input type="text" name="title" id="title" value="<storage:field name="title"/>"/>
     <small><%= messages.getString("admin.forms.genres.title.notice") %></small><br/>
     <%= messages.getString("admin.forms.genres.desc") %><span class="red">*</span>:<br/>
-    <textarea name="description" id="desc" rows="10" cols="80"><storage:genre field="description"/></textarea>
+    <textarea name="description" id="desc" rows="10" cols="80"><storage:field name="description"/></textarea>
     <br/>
     <small><%= messages.getString("admin.forms.genres.desc.notice") %></small><br/>
     <input type="submit" value="<%= messages.getString("forms.save") %>"/>
 </form>
 <br/><small><%= messages.getString("forms.mandatory") %></small>
-</storage:record>
+</storage:genre>
 <% }
 }%>

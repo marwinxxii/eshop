@@ -33,34 +33,37 @@ ResourceBundle messages=(ResourceBundle)pageContext.getAttribute("resourceBundle
                 <b><bundle:message key="forms.actions"/></b>
             </td>
         </tr>
-        <storage:record identity="last" entity="Delivery"
+        <storage:manager/>
+        <storage:deliveries end="20"
         message="<%= "<tr><td colspan=4>"+messages.getString("messages.deliveries.notfound")+"</td></tr>" %>">
-            <tr>
-                <td class="column"><input type="checkbox" class="record"
-                           value="<storage:delivery field="id"/>"/></td>
-                <td class="column">
-                    <storage:delivery field="id"/>
-                </td>
-                <td class="column">
-                    <storage:delivery field="distributor.title"/>
-                    (<storage:delivery field="distributor.id"/>)
-                </td>
-                <td class="column">
-                    <storage:delivery field="deliverDate"/>
-                </td>
-                <td class="column">
-                    <storage:delivery field="size"/>
-                </td>
-                <td>
-                    <a href="/admin/deliveries.jsp?act=edit&id=<storage:delivery field="id"/>">
-                        <bundle:message key="forms.edit"/>
-                    </a>
-                    <!--<a href="/admin/label?act=del&ids=<storage:delivery field="id"/>"
-                       onclick="return confirm('<bundle:message key="forms.delete"/>')">
-                    </a>-->
-                </td>
-            </tr>
-        </storage:record>
+            <storage:delivery>
+                <tr>
+                    <td class="column"><input type="checkbox" class="record"
+                               value="<storage:field name="id"/>"/></td>
+                    <td class="column">
+                        <storage:field name="id"/>
+                    </td>
+                    <td class="column">
+                        <storage:field name="distributor.title"/>
+                        (<storage:field name="distributor.id"/>)
+                    </td>
+                    <td class="column">
+                        <storage:field name="deliverDate"/>
+                    </td>
+                    <td class="column">
+                        <storage:field name="size"/>
+                    </td>
+                    <td>
+                        <a href="/admin/deliveries.jsp?act=edit&id=<storage:field name="id"/>">
+                            <bundle:message key="forms.edit"/>
+                        </a>
+                        <!--<a href="/admin/label?act=del&ids=<storage:field name="id"/>"
+                           onclick="return confirm('<bundle:message key="forms.delete"/>')">
+                        </a>-->
+                    </td>
+                </tr>
+            </storage:delivery>
+        </storage:deliveries>
     </table><br/>
 <input type="submit" value="<bundle:message key="forms.delete"/>"
        onclick="deleteRecords(event)"/>

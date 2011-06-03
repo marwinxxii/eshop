@@ -134,6 +134,7 @@ public class StorageManager {
             }
             pStatement.close();
             i.setArtists(artists);
+            i.setPrice(this.getPriceOfItem(id));
             return i;
         } else {
             result.close();
@@ -142,10 +143,12 @@ public class StorageManager {
         }
     }
 
-    public List<Item> getLastItems() throws SQLException {
+    public List<Item> getItems(int start,int end) throws SQLException {
         PreparedStatement pStatement = connection.prepareStatement(
-                "select id from items where rownum<=5 order by id desc");
+                "select id from items where rownum<? and rownum>=? order by id desc");
         //execute because query should return more than one row
+        pStatement.setInt(1, end);
+        pStatement.setInt(2, start);
         pStatement.execute();
         ResultSet result = pStatement.getResultSet();
         ArrayList<Item> items = new ArrayList<Item>();
@@ -153,12 +156,173 @@ public class StorageManager {
         while (result.next()) {
             int id = result.getInt(1);
             Item i=this.getItem(id);
-            if (i!=null) items.add(i);
+            //if (i!=null) items.add(i);
+            items.add(i);
         }
         result.close();
         pStatement.close();
         return items;
     }
+
+    public List<Item> getItemsForLabel(int id) throws SQLException {
+        Label label=this.getLabel(id);
+        ArrayList<Item> items=new ArrayList<Item>();
+        if (label==null) return items;
+        PreparedStatement pStatement = connection.prepareStatement("select "
+                + "id as item_id,"
+                + "items.media_type,"
+                + "items.format,"
+                + "items.title as item_title,"
+                + "items.cover,"
+                + "items.release_date "
+                + "from items where items.label_id=?");
+        pStatement.setInt(1, id);
+        pStatement.execute();
+        ResultSet result = pStatement.getResultSet();
+        while (result.next()) {
+            Item i = new Item(result.getInt(1), result.getString("media_type"),
+                    result.getString("format"),
+                    result.getString("item_title"),
+                    result.getDate("release_date"));
+            if (result.getString("cover") != null) {
+                i.setCover(result.getString("cover"));
+            }
+            i.setLabel(label);
+            PreparedStatement ps = connection.prepareStatement("select "
+                    + "artists.id as artist_id,"
+                    + "artists.title as artist_title,"
+                    + "artists.country,"
+                    + "artists.begin_year,"
+                    + "artists.end_year,"
+                    + "genres.id as genre_id,"
+                    + "genres.title as genre_title,"
+                    + "genres.description "
+                    + "from artists join genres on artists.genre_id=genres.id "
+                    + "where artists.id in ("+
+                    "select artist_id from tracks where item_id=?)");
+            ps.setInt(1, id);
+            ArrayList<Artist> artists = new ArrayList<Artist>();
+            //execute because query should return more than one row
+            //ResultSet result2 = ps.executeQuery();
+            if (!ps.execute()) {
+                ps.close();
+                continue;
+            }
+            ResultSet result2 = ps.getResultSet();
+            while (result2.next()) {
+                Genre g = new Genre(result2.getInt("genre_id"),
+                        result2.getString("genre_title"),
+                        result2.getString("description"));
+                Artist a = new Artist(result2.getInt("artist_id"),
+                        result2.getString("artist_title"), g);
+                if (result2.getString("country") != null) {
+                    a.setCountry(result2.getString("country"));
+                }
+                if (result2.getInt("begin_year") != 0) {
+                    a.setBeginYear(result2.getInt("begin_year"));
+                }
+                if (result2.getInt("end_year") != 0) {
+                    a.setEndYear(result2.getInt("end_year"));
+                }
+                artists.add(a);
+            }
+            ps.close();
+            result2.close();
+            i.setArtists(artists);
+            i.setPrice(this.getPriceOfItem(i.getId()));//TODO PRICE needed?
+            items.add(i);
+        }
+        pStatement.close();
+        return items;
+    }
+
+    public List<Item> getItemsForArtist(int id) throws SQLException {
+        Artist artist=this.getArtist(id);
+        ArrayList<Item> items=new ArrayList<Item>();
+        if (artist==null) return items;
+        ArrayList<Artist> artists=new ArrayList<Artist>();
+        artists.add(artist);
+        PreparedStatement pStatement = connection.prepareStatement("select "
+                + "items.id as item_id,"
+                + "items.media_type,"
+                + "items.format,"
+                + "items.title as item_title,"
+                + "items.cover,"
+                + "items.release_date,"
+                + "labels.id as label_id,"
+                + "labels.title as label_title,"
+                + "labels.country "
+                + "from items join labels on "
+                + "items.label_id=labels.id where items.id in "
+                + "(select distinct item_id from tracks where artist_id=?)");
+        pStatement.setInt(1, id);
+        pStatement.execute();
+        ResultSet result=pStatement.getResultSet();
+        while (result.next()) {
+            Item i = new Item(result.getInt(1), result.getString("media_type"),
+                    result.getString("format"),
+                    result.getString("item_title"),
+                    result.getDate("release_date"));
+            if (result.getString("cover") != null) {
+                i.setCover(result.getString("cover"));
+            }
+            if (result.getInt("label_id") != 0) {
+                Label l = new Label(result.getInt("label_id"),
+                        result.getString("label_title"));
+                if (result.getString("country") != null) {
+                    l.setCountry(result.getString("country"));
+                }
+                i.setLabel(l);
+            }
+            i.setArtists(artists);
+            i.setPrice(this.getPriceOfItem(i.getId()));
+            items.add(i);
+        }
+        pStatement.close();
+        return items;
+    }
+
+    /*public List<Item> getItemsRating() throws SQLException {
+        PreparedStatement pStatement = connection.prepareStatement("select "
+                + "items.id as item_id,"
+                + "items.media_type,"
+                + "items.format,"
+                + "items.title as item_title,"
+                + "items.cover,"
+                + "items.release_date,"
+                + "labels.id as label_id,"
+                + "labels.title as label_title,"
+                + "labels.country "
+                + "from items join labels on "
+                + "items.label_id=labels.id where items.id in "
+                + "(select item_id from sale_lists where rownum<=20 "
+                + "group by item_id order by count(item_id) desc)");
+        pStatement.execute();
+        ResultSet result=pStatement.getResultSet();
+        ArrayList<Item> items=new ArrayList<Item>();
+        while(result.next()) {
+            Item i = new Item(result.getInt(1), result.getString("media_type"),
+                    result.getString("format"),
+                    result.getString("item_title"),
+                    result.getDate("release_date"));
+            if (result.getString("cover") != null) {
+                i.setCover(result.getString("cover"));
+            }
+            if (result.getInt("label_id") != 0) {
+                Label l = new Label(result.getInt("label_id"),
+                        result.getString("label_title"));
+                if (result.getString("country") != null) {
+                    l.setCountry(result.getString("country"));
+                }
+                i.setLabel(l);
+            }
+            i.setArtists(this.getArtistsForItem(i.getId()));
+            i.setPrice(this.getPriceOfItem(i.getId()));
+            items.add(i);
+        }
+        pStatement.close();
+        return items;
+    }*/
 
     public void addItem(Item item) throws SQLException {
         PreparedStatement pStatement = connection.prepareStatement(
@@ -261,21 +425,34 @@ public class StorageManager {
         pStatement.close();
     }
 
-    public List<Genre> getLastGenres() throws SQLException {
+    public List<Genre> getGenres(int start,int end) throws SQLException {
         PreparedStatement pStatement = connection.prepareStatement(
-                "select id from genres where rownum<=5 order by id desc");
+                "select * from genres where rownum>=? and rownum<? order by id desc");
         //execute because query should return more that one row
+        pStatement.setInt(1, start);
+        pStatement.setInt(2, end);
         pStatement.execute();
         ResultSet result = pStatement.getResultSet();
         ArrayList<Genre> genres = new ArrayList<Genre>();
         //TODO optimization
         while (result.next()) {
-            int id = result.getInt(1);
-            Genre g=this.getGenre(id);
-            if (g!=null) genres.add(g);
+            Genre genre = new Genre(result.getInt(1), result.getString("title"),
+                    result.getString("description"));
+            genres.add(genre);
         }
         result.close();
         pStatement.close();
+        return genres;
+    }
+
+    public List<Genre> getGenresRating() throws SQLException {
+        //TODO fucking optimise this!
+        ArrayList<Genre> genres=new ArrayList<Genre>();
+        List<Artist> artists=this.getArtistsRating();
+        if (artists.isEmpty()) return genres;
+        for (Artist a:artists) {
+            genres.add(a.getGenre());
+        }
         return genres;
     }
 
@@ -284,7 +461,7 @@ public class StorageManager {
     }
 
     public Label getLabel(int id) throws SQLException {
-         PreparedStatement pStatement = connection.prepareStatement(
+        PreparedStatement pStatement = connection.prepareStatement(
                 "select * from labels where id=?");
         pStatement.setInt(1, id);
         ResultSet result=pStatement.executeQuery();
@@ -300,10 +477,12 @@ public class StorageManager {
         return label;
     }
 
-    public List<Label> getLastLabels() throws SQLException {
+    public List<Label> getLabels(int start,int end) throws SQLException {
         PreparedStatement pStatement = connection.prepareStatement(
-                "select id from labels where rownum<=5 order by id desc");
+                "select id from labels where rownum>=? and rownum<? order by id desc");
         //execute because query should return more that one row
+        pStatement.setInt(1, start);
+        pStatement.setInt(2, end);
         pStatement.execute();
         ResultSet result = pStatement.getResultSet();
         ArrayList<Label> labels = new ArrayList<Label>();
@@ -315,6 +494,31 @@ public class StorageManager {
         }
         result.close();
         pStatement.close();
+        return labels;
+    }
+
+    public List<Label> getLabelsRating() throws SQLException {
+        PreparedStatement statement=connection.prepareStatement(
+                "select item_id from sale_lists where rownum<=20 " +
+                "group by item_id order by count(item_id) desc");
+        statement.execute();
+        ResultSet result=statement.getResultSet();
+        ArrayList<Label> labels=new ArrayList<Label>();
+        PreparedStatement pStatement = connection.prepareStatement(
+                "select * from labels where id=?");
+        while(result.next()) {
+            pStatement.setInt(1, result.getInt(1));
+            ResultSet res=pStatement.executeQuery();
+            if (res.next()) {
+                Label label=new Label(res.getInt(1),res.getString("title"));
+                if (res.getString("country")!=null) {
+                    label.setCountry(res.getString("country"));
+                }
+                labels.add(label);
+            }
+        }
+        pStatement.close();
+        statement.close();
         return labels;
     }
 
@@ -388,9 +592,19 @@ public class StorageManager {
        return artist;
     }
 
-    public List<Artist> getLastArtists() throws SQLException {
+    /**
+     * Get list of artists in specified range.
+     * @param start
+     * @param end
+     * @return
+     * @throws SQLException
+     */
+    public List<Artist> getArtists(int start,int end) throws SQLException {
+        //TODO doc
         PreparedStatement pStatement = connection.prepareStatement(
-                "select id from artists where rownum<=5 order by id desc");
+                "select id from artists where rownum>=? and rownum<? order by id desc");
+        pStatement.setInt(1, start);
+        pStatement.setInt(2, end);
         pStatement.execute();
         ResultSet result = pStatement.getResultSet();
         ArrayList<Artist> artists = new ArrayList<Artist>();
@@ -402,6 +616,124 @@ public class StorageManager {
         }
         result.close();
         pStatement.close();
+        return artists;
+    }
+
+    /**
+     * Get list of artists for specified genre.
+     * @param id id of genre in database.
+     * @return list of artists, ordered by descending of id.
+     * @throws SQLException
+     */
+    public List<Artist> getArtistsForGenre(int id) throws SQLException {
+        ArrayList<Artist> artists=new ArrayList<Artist>();
+        Genre genre=this.getGenre(id);
+        if (genre==null) return artists;
+        PreparedStatement ps = connection.prepareStatement("select "
+                    + "artists.id as artist_id,"
+                    + "artists.title as artist_title,"
+                    + "artists.country,"
+                    + "artists.begin_year,"
+                    + "artists.end_year "
+                    + "from artists where artists.genre_id=? order by id desc");
+       ps.setInt(1, id);
+       ps.execute();
+       ResultSet result=ps.getResultSet();
+       while (result.next()) {
+           Artist artist=new Artist(result.getInt("artist_id"),
+                   result.getString("artist_title"),genre);
+           if (result.getString("country") != null) {
+                artist.setCountry(result.getString("country"));
+            }
+            if (result.getInt("begin_year") != 0) {
+                artist.setBeginYear(result.getInt("begin_year"));
+            }
+            if (result.getInt("end_year") != 0) {
+                artist.setEndYear(result.getInt("end_year"));
+            }
+            artists.add(artist);
+       }
+       result.close();
+       ps.close();
+       return artists;
+    }
+
+    public List<Artist> getArtistsForTrack(int id) throws SQLException {
+        //TODO check for track existence?
+        PreparedStatement ps = connection.prepareStatement(
+                "select distinct artist_id from tracks where id=?");
+        ps.setInt(1, id);
+        ps.execute();
+        ArrayList<Artist> artists=new ArrayList<Artist>();
+        ResultSet result=ps.getResultSet();
+        //TODO optimization
+        while (result.next()) {
+            artists.add(this.getArtist(result.getInt(1)));
+        }
+        ps.close();
+        return artists;
+    }
+
+    public List<Artist> getArtistsForItem(int id) throws SQLException {
+        //TODO check for item existence?
+        PreparedStatement ps = connection.prepareStatement(
+                "select distinct artist_id from tracks where item_id=?");
+        ps.setInt(1, id);
+        ps.execute();
+        ArrayList<Artist> artists=new ArrayList<Artist>();
+        ResultSet result=ps.getResultSet();
+        //TODO optimization
+        while (result.next()) {
+            artists.add(this.getArtist(result.getInt(1)));
+        }
+        ps.close();
+        return artists;
+    }
+
+    public List<Artist> getArtistsRating() throws SQLException {
+        PreparedStatement ps = connection.prepareStatement(
+                "select item_id from sale_lists where rownum<=20 " +
+                "group by item_id order by count(item_id) desc");
+        ps.execute();
+        ResultSet result=ps.getResultSet();
+        ArrayList<Artist> artists=new ArrayList<Artist>();
+        PreparedStatement statement=connection.prepareStatement("select "
+                    + "artists.id as artist_id,"
+                    + "artists.title as artist_title,"
+                    + "artists.country,"
+                    + "artists.begin_year,"
+                    + "artists.end_year,"
+                    + "genres.id as genre_id,"
+                    + "genres.title as genre_title,"
+                    + "genres.description "
+                    + "from artists join genres on artists.genre_id=genres.id "
+                    + "where artists.id in "
+                    + "(select distinct artist_id from tracks where item_id=?)");
+        while (result.next()) {
+            statement.setInt(1, result.getInt(1));
+            statement.execute();
+            ResultSet res = statement.getResultSet();
+            while (res.next()) {
+                Genre genre = new Genre(res.getInt("genre_id"),
+                        res.getString("genre_title"),
+                        res.getString("description"));
+                Artist artist = new Artist(res.getInt("artist_id"),
+                        res.getString("artist_title"), genre);
+                if (res.getString("country") != null) {
+                    artist.setCountry(res.getString("country"));
+                }
+                if (res.getInt("begin_year") != 0) {
+                    artist.setBeginYear(res.getInt("begin_year"));
+                }
+                if (res.getInt("end_year") != 0) {
+                    artist.setEndYear(res.getInt("end_year"));
+                }
+                artists.add(artist);
+            }
+            res.close();
+        }
+        statement.close();
+        ps.close();
         return artists;
     }
 
@@ -501,7 +833,7 @@ public class StorageManager {
                 track.setComposer(result.getString("composer"));
             }
             if (result.getString("duration")!=null) {
-                track.setComposer(result.getString("duration"));
+                track.setDuration(result.getString("duration"));
             }
             track.isVideo=result.getBoolean("isvideo");
         }
@@ -510,9 +842,18 @@ public class StorageManager {
         return track;
     }
 
-    public List<Track> getLastTracks() throws SQLException {
+    /**
+     * Returns list of tracks from database.
+     * @param start left edge of diapason
+     * @param end right edge of diapason
+     * @return list of tracks
+     * @throws SQLException on database error
+     */
+    public List<Track> getTracks(int start,int end) throws SQLException {
         PreparedStatement pStatement = connection.prepareStatement(
-                "select id from tracks where rownum<=5 order by id desc");
+                "select id from tracks where rownum>=? and rownum<? order by id desc");
+        pStatement.setInt(1,start);
+        pStatement.setInt(2,end);
         pStatement.execute();
         ResultSet result = pStatement.getResultSet();
         ArrayList<Track> tracks = new ArrayList<Track>();
@@ -529,12 +870,12 @@ public class StorageManager {
 
     public List<Track> getTracksForItem(int id) throws SQLException {
         PreparedStatement pStatement = connection.prepareStatement(
-                "select * from tracks where item_id=?");
+                "select * from tracks where item_id=? order by track_number asc");
         pStatement.setInt(1, id);
         ResultSet result=pStatement.executeQuery();
         ArrayList<Track> tracks=new ArrayList<Track>();
         Track track;
-        if (result.next()) {
+        while (result.next()) {
             int artistId=result.getInt("artist_id");
             int item_id=result.getInt("item_id");
             track=new Track(id,getArtist(artistId),getItem(item_id),
@@ -543,7 +884,7 @@ public class StorageManager {
                 track.setComposer(result.getString("composer"));
             }
             if (result.getString("duration")!=null) {
-                track.setComposer(result.getString("duration"));
+                track.setDuration(result.getString("duration"));
             }
             track.isVideo=result.getBoolean("isvideo");
             tracks.add(track);
@@ -625,17 +966,20 @@ public class StorageManager {
         return distributor;
     }
 
-    public List<Distributor> getLastDistributors() throws SQLException {
+    public List<Distributor> getDistributors(int start,int end) throws SQLException {
         PreparedStatement pStatement = connection.prepareStatement(
-                "select id from distributors where rownum<=5 order by id desc");
+                "select * from distributors where rownum>=? and rownum<? order by id desc");
+        pStatement.setInt(1, start);
+        pStatement.setInt(2, end);
         pStatement.execute();
         ResultSet result = pStatement.getResultSet();
         ArrayList<Distributor> distributors = new ArrayList<Distributor>();
         //TODO optimization
         while (result.next()) {
-            int id = result.getInt(1);
-            Distributor d=this.getDistributor(id);
-            if (d!=null) distributors.add(d);
+            Distributor d=new Distributor(result.getInt(1),
+                    result.getString("d_type"),
+                    result.getString("title"), result.getString("country"));
+            distributors.add(d);
         }
         result.close();
         pStatement.close();
@@ -707,9 +1051,11 @@ public class StorageManager {
         return delivery;
     }
 
-    public List<Delivery> getLastDeliveries() throws SQLException {
+    public List<Delivery> getDeliveries(int start, int end) throws SQLException {
         PreparedStatement pStatement = connection.prepareStatement(
-                "select id from deliveries where rownum<=5 order by id desc");
+                "select id from deliveries where rownum>=? and rownum<? order by id desc");
+        pStatement.setInt(1, start);
+        pStatement.setInt(2, end);
         pStatement.execute();
         ResultSet result = pStatement.getResultSet();
         ArrayList<Delivery> deliveries = new ArrayList<Delivery>();
@@ -717,7 +1063,7 @@ public class StorageManager {
         while (result.next()) {
             int id = result.getInt(1);
             Delivery d=this.getDelivery(id);
-            if (d!=null) deliveries.add(d);
+            deliveries.add(d);
         }
         pStatement.close();
         return deliveries;
@@ -813,5 +1159,19 @@ public class StorageManager {
         return new Delivery(1,
                 new Distributor(distributorId, "type", "title", "country"),
                 orderDate,deliverDate);
+    }
+
+    public double getPriceOfItem(int id) throws SQLException {
+        PreparedStatement pStatement = connection.prepareStatement(
+                "select price from deliver_lists where item_id=? " +
+                "and deliver_id=(select max(deliver_id) " +
+                "from deliver_lists where item_id=?)");
+        pStatement.setInt(1, id);
+        pStatement.setInt(2, id);
+        ResultSet result=pStatement.executeQuery();
+        result.next();
+        double price=result.getDouble(1);
+        pStatement.close();
+        return price;
     }
 }

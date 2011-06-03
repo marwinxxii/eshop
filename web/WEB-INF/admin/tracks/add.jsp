@@ -16,7 +16,7 @@
             error=true;
             title.style.border='1px solid #f00';
         } else {
-            title.style.boeder='';
+            title.style.border='';
         }
         var i=parseInt(artistId.value);
         if (isNaN(i) || i<=0) {
@@ -63,9 +63,15 @@ ResourceBundle messages=(ResourceBundle)pageContext.getAttribute("resourceBundle
 String act=request.getParameter("act");
 boolean add=true;
 boolean error=false;
+int id=0;
 if (act!=null && act.equals("edit")) {
     if (request.getParameter("id")!=null) {
         add=false;
+        try {
+            id=Integer.parseInt(request.getParameter("id"));
+        } catch(NumberFormatException e) {
+            error=true;
+        }
     } else {
         error=true;
     }
@@ -103,43 +109,44 @@ if (error) {%>
 </form>
 <br/><small><%= messages.getString("forms.mandatory") %></small>
 <%} else {%>
-<storage:record entity="Track" identity="<%= request.getParameter("id") %>"
+<storage:manager/>
+<storage:track keyId="<%= id %>"
 message="<%= messages.getString("messages.track.lost")%>">
 <b><%= messages.getString("admin.forms.tracks.edit") %></b><br /><br/>
 <form method="post" action="/admin/track" onsubmit="onSubmit(event);">
     <input type="hidden" name="act" value="save"/>
-    <input type="hidden" name="id" value="<storage:track field="id"/>"/>
+    <input type="hidden" name="id" value="<storage:field name="id"/>"/>
     <%= messages.getString("admin.forms.tracks.artistId") %><span class="red">*</span>:
     <input type="text" name="artistId" id="artistId" maxlength="6"
-           value="<storage:track field="artistId"/>"/>
+           value="<storage:field name="artist.id"/>"/>
     <a href="/admin/artists.jsp?act=add">
         <small><%= messages.getString("admin.forms.artists.add") %></small>
     </a><br/>
     <%= messages.getString("admin.forms.tracks.itemId") %><span class="red">*</span>:
     <input type="text" name="itemId" id="itemId" maxlength="6"
-           value="<storage:track field="itemId"/>" />
+           value="<storage:field name="item.id"/>" />
     <a href="/admin/items.jsp?act=add">
         <small><%= messages.getString("admin.forms.items.add") %></small>
     </a><br/>
     <%= messages.getString("admin.forms.tracks.title") %><span class="red">*</span>:
     <input type="text" name="title" id="title" maxlength="<%= Track.TITLE_LENGTH %>"
-           value="<storage:track field="title"/>"/>
+           value="<storage:field name="title"/>"/>
     <small><%= messages.getString("admin.forms.tracks.title.notice") %></small><br />
     <%= messages.getString("admin.forms.tracks.trackNumber") %><span class="red">*</span>:
     <input type="text" name="trackNumber" id="trackNumber" maxlength="2"
-           value="<storage:track field="trackNumber"/>"/><br/>
+           value="<storage:field name="trackNumber"/>"/><br/>
     <%= messages.getString("admin.forms.tracks.composer") %>:
     <input type="text" name="composer" id="composer" maxlength="<%= Track.COMPOSER_LENGTH %>"
-           value="<storage:track field="composer"/>"/>
+           value="<storage:field name="composer"/>"/>
     <small><%= messages.getString("admin.forms.tracks.composer.notice") %></small><br />
     <input type="text" name="duration" id="duration" maxlength="<%= Track.DURATION_LENGTH %>"
-           value="<storage:track field="duration"/>"/>
+           value="<storage:field name="duration"/>"/>
     <small>0:00:00 <%= messages.getString("admin.forms.tracks.duration.notice") %></small><br />
     <%= messages.getString("admin.forms.tracks.isVideo") %>:
-    <input type="checkbox" name="isVideo" checked="<storage:track field="isVideo"/>"/><br/>
+    <input type="checkbox" name="isVideo" checked="<storage:field name="isVideo"/>"/><br/>
     <input type="submit" value="<%= messages.getString("forms.save") %>"/>
 </form>
-</storage:record>
+</storage:track>
 <br/><small><%= messages.getString("forms.mandatory") %></small>
 <% }
 }%>

@@ -16,7 +16,7 @@
             error=true;
             title.style.border='1px solid #f00';
         } else {
-            title.style.boeder='';
+            title.style.border='';
         }
         var i=parseInt(labelId.value);
         if (labelId.value!="" && (isNaN(i) || i<=0)) {
@@ -63,9 +63,15 @@ ResourceBundle messages=(ResourceBundle)pageContext.getAttribute("resourceBundle
 String act=request.getParameter("act");
 boolean add=true;
 boolean error=false;
+int id=0;
 if (act!=null && act.equals("edit")) {
     if (request.getParameter("id")!=null) {
         add=false;
+        try {
+            id=Integer.parseInt(request.getParameter("id"));
+        } catch(NumberFormatException e) {
+            error=true;
+        }
     } else {
         error=true;
     }
@@ -97,40 +103,40 @@ if (error) {%>
 </form>
 <br/><small><%= messages.getString("forms.mandatory") %></small>
 <%} else {%>
-<storage:record entity="Item" identity="<%= request.getParameter("id") %>"
+<storage:item keyId="<%= id %>"
 message="<%= messages.getString("messages.item.lost")%>">
 <b><%= messages.getString("admin.forms.items.edit") %></b><br /><br/>
 <form method="post" action="/admin/item" onsubmit="onSubmit(event);">
     <input type="hidden" name="act" value="save"/>
-    <input type="hidden" name="id" value="<storage:item field="id"/>"/>
+    <input type="hidden" name="id" value="<storage:field name="id"/>"/>
     <%= messages.getString("admin.forms.items.mediaType") %><span class="red">*</span>:
     <input type="text" name="mediaType" id="mediaType"
            maxlength="<%= Item.MEDIATYPE_LENGTH %>"
-           value="<storage:item field="mediaType"/>" /><br/>
+           value="<storage:field name="mediaType"/>" /><br/>
     <%= messages.getString("admin.forms.items.format") %><span class="red">*</span>:
     <input type="text" name="format" id="format"
-           value="<storage:item field="format"/>" /><br/>
+           value="<storage:field name="format"/>" /><br/>
     <%= messages.getString("admin.forms.items.labelId") %>:
     <input type="text" name="labelId" id="labelId" maxlength="6"
-           value="<storage:item field="labelId"/>" />
+           value="<storage:field name="label.id"/>" />
     <small><%= messages.getString("admin.forms.labels.add") %></small><br/>
     <%= messages.getString("admin.forms.items.title") %><span class="red">*</span>:
     <input type="text" name="title" id="title"
            maxlength="<%= Item.TITLE_LENGTH %>"
-           value="<storage:item field="title"/>" />
+           value="<storage:field name="title"/>" />
     <small><%= messages.getString("admin.forms.items.title.notice") %></small><br />
     <%= messages.getString("admin.forms.items.cover") %>:
     <input type="text" name="cover" id="cover"
            maxlength="<%= Item.COVER_LENGTH %>"
-           value="<storage:item field="cover"/>" /><br/>
+           value="<storage:field name="cover"/>" /><br/>
     <%= messages.getString("admin.forms.items.releaseDate") %><span class="red">*</span>:
     <input type="text" name="releaseDate" id="releaseDate"
            maxlength="10"
-           value="<storage:item field="releaseDate"/>" />
+           value="<storage:field name="releaseDate"/>" />
     <small><%= messages.getString("admin.forms.items.releaseDate.notice") %></small><br />
     <input type="submit" value="<%= messages.getString("forms.save") %>"/>
 </form>
-</storage:record>
+</storage:item>
 <br/><small><%= messages.getString("forms.mandatory") %></small>
 <% }
 }%>

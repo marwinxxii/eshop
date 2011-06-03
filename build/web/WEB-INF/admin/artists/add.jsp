@@ -55,9 +55,15 @@ ResourceBundle messages=(ResourceBundle)pageContext.getAttribute("resourceBundle
 String act=request.getParameter("act");
 boolean add=true;
 boolean error=false;
+int id=0;
 if (act!=null && act.equals("edit")) {
     if (request.getParameter("id")!=null) {
         add=false;
+        try {
+            id=Integer.parseInt(request.getParameter("id"));
+        } catch(NumberFormatException e) {
+            error=true;
+        }
     } else {
         error=true;
     }
@@ -86,27 +92,28 @@ if (error) {%>
 </form>
 <br/><small><%= messages.getString("forms.mandatory") %></small>
 <%} else {%>
-<storage:record entity="Artist" identity="<%= request.getParameter("id") %>"
+<storage:manager/>
+<storage:artist keyId="<%= id %>"
 message="<%= messages.getString("messages.artist.lost")%>">
 <b><%= messages.getString("admin.forms.artists.edit") %></b><br /><br/>
 <form method="post" action="/admin/artist" onsubmit="onSubmit(event);">
     <input type="hidden" name="act" value="save"/>
-    <input type="hidden" name="id" value="<storage:artist field="genreId"/>"/>
+    <input type="hidden" name="id" value="<storage:field name="genre.id"/>"/>
     <%= messages.getString("admin.forms.artists.title") %><span class="red">*</span>:
-    <input type="text" name="title" id="title" value="<storage:artist field="title"/>" />
+    <input type="text" name="title" id="title" value="<storage:field name="title"/>" />
     <small><%= messages.getString("admin.forms.artists.title.notice") %></small><br />
     <%= messages.getString("admin.forms.artists.genreId") %><span class="red">*</span>:
-    <input type="text" name="genreId" id="genreId" maxlength="6" value="<storage:artist field="genreId"/>"/><br />
+    <input type="text" name="genreId" id="genreId" maxlength="6" value="<storage:field name="genre.id"/>"/><br />
     <%= messages.getString("admin.forms.artists.country") %>:
-    <input type="text" name="country" id="country" value="<storage:artist field="country"/>" />
+    <input type="text" name="country" id="country" value="<storage:field name="country"/>" />
     <small><%= messages.getString("admin.forms.artists.country.notice") %></small><br />
     <%= messages.getString("admin.forms.artists.beginYear") %>:
-    <input type="text" name="beginYear" id="beginYear" value="<storage:artist field="beginYear"/>" /><br />
+    <input type="text" name="beginYear" id="beginYear" value="<storage:field name="beginYear"/>" /><br />
     <%= messages.getString("admin.forms.artists.endYear") %>:
-    <input type="text" name="endYear" id="endYear" value="<storage:artist field="endYear"/>" /><br />
+    <input type="text" name="endYear" id="endYear" value="<storage:field name="endYear"/>" /><br />
     <input type="submit" value="<%= messages.getString("forms.save") %>"/>
 </form>
-</storage:record>
+</storage:artist>
 <br/><small><%= messages.getString("forms.mandatory") %></small>
 <% }
 }%>

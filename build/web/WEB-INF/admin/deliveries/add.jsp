@@ -7,9 +7,15 @@ ResourceBundle messages=(ResourceBundle)pageContext.getAttribute("resourceBundle
 String act=request.getParameter("act");
 boolean add=true;
 boolean error=false;
+int id=0;
 if (act!=null && act.equals("edit")) {
     if (request.getParameter("id")!=null) {
         add=false;
+        try {
+            id=Integer.parseInt(request.getParameter("id"));
+        } catch(NumberFormatException e) {
+            error=true;
+        }
     } else {
         error=true;
     }
@@ -62,17 +68,19 @@ if (error) {%>
     }
 
     <% if (!add) {%>
+    <storage:manager/>
     items=[
-    <storage:record entity="Delivery" identity="<%= request.getParameter("id") %>"
-                    message="">
+    <storage:delivery keyId="<%= id %>">
     <storage:deliveryList>
+        <storage:deliveryItem>
     {
-        id:<storage:deliveryItem field="item.id"/>,
-        amount:<storage:deliveryItem field="amount"/>,
-        price:<storage:deliveryItem field="price"/>
+        id:<storage:field name="item.id"/>,
+        amount:<storage:field name="amount"/>,
+        price:<storage:field name="price"/>
     },
+        </storage:deliveryItem>
     </storage:deliveryList>
-    </storage:record>
+    </storage:delivery>
     null]
     <% } else { %>
     items=[];
@@ -190,25 +198,25 @@ if (error) {%>
 </form>
 <br/><small><%= messages.getString("forms.mandatory") %></small>
 <%} else {%>
-<storage:record entity="Delivery" identity="<%= request.getParameter("id") %>"
+<storage:delivery keyId="<%= id %>"
 message="<%= messages.getString("messages.delivery.lost")%>">
 <b><%= messages.getString("admin.forms.deliveries.edit") %></b><br /><br/>
 <form method="post" action="/admin/delivery" onsubmit="onSubmit(event);">
     <input type="hidden" name="act" value="save"/>
-    <input type="hidden" name="id" value="<storage:delivery field="id"/>"/>
+    <input type="hidden" name="id" value="<storage:field name="id"/>"/>
 
     <%= messages.getString("admin.forms.deliveries.distributor") %><span class="red">*</span>:
     <input type="text" name="distributorId" id="distributorId"
-           value="<storage:delivery field="distributor.id"/>"/>
+           value="<storage:field name="distributor.id"/>"/>
     <br/>
     <%= messages.getString("admin.forms.deliveries.orderDate") %><span class="red">*</span>:
     <input type="text" name="orderDate" id="orderDate"
-           value="<storage:delivery field="orderDate"/>"/>
+           value="<storage:field name="orderDate"/>"/>
     <small><%= messages.getString("admin.forms.deliveries.orderDate.notice") %></small>
     <br/>
     <%= messages.getString("admin.forms.deliveries.deliverDate") %><span class="red">*</span>:
     <input type="text" name="deliverDate" id="deliverDate"
-           value="<storage:delivery field="deliverDate"/>"/>
+           value="<storage:field name="deliverDate"/>"/>
     <small><%= messages.getString("admin.forms.deliveries.deliverDate.notice") %></small><br/>
     <%= messages.getString("admin.forms.deliveries.items") %>
     <span class="red">*</span>:<br/><br/>
@@ -229,12 +237,14 @@ message="<%= messages.getString("messages.delivery.lost")%>">
             </td>
         </tr>
         <storage:deliveryList>
-        <tr>
-            <td><storage:deliveryItem field="title"/> (<storage:deliveryItem field="item.id"/>)</td>
-            <td><storage:deliveryItem field="amount"/></td>
-            <td><storage:deliveryItem field="price"/></td>
-            <td><a href="#"><%= messages.getString("forms.edit") %></a></td>
-        </tr>
+            <storage:deliveryItem>
+                <tr>
+                    <td><storage:field name="item.title"/> (<storage:field name="item.id"/>)</td>
+                    <td><storage:field name="amount"/></td>
+                    <td><storage:field name="price"/></td>
+                    <td><a href="#"><%= messages.getString("forms.edit") %></a></td>
+                </tr>
+            </storage:deliveryItem>
         </storage:deliveryList>
     </table>
     <table style="width:100%" class="records">
@@ -257,7 +267,7 @@ message="<%= messages.getString("messages.delivery.lost")%>">
     <input type="hidden" value="" id="items" name="items"/>
     <input type="submit" value="<%= messages.getString("forms.save") %>"/>
 </form>
-</storage:record>
+</storage:delivery>
 <br/><small><%= messages.getString("forms.mandatory") %></small>
 <% }
 }%>

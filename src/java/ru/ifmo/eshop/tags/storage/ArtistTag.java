@@ -1,67 +1,50 @@
 package ru.ifmo.eshop.tags.storage;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.PageContext;
 import ru.ifmo.eshop.storage.Artist;
+import ru.ifmo.eshop.storage.StorageManager;
 
 /**
  *
  * @author alex
  */
-public class ArtistTag extends EntityTag {
+public final class ArtistTag extends RecordTag {
 
     @Override
     public int doStartTag() throws JspException {
-        RecordTag recordTag=(RecordTag) RecordTag.getAncestor(this,"ru.ifmo.eshop.tags.storage.RecordTag");
-        if (recordTag==null) {
-            throw new JspException("No parent RecordTag found");
-        }
-        Artist a=(Artist)recordTag.getRecord();
-        String content;
-        //TODO validation of attribute values?
-        if (field.equals("id")) {
-            content=String.valueOf(a.getId());
-        } else if (field.equals("title")) {
-            content=a.getTitle();
-        } else if (field.equals("genreId")) {//TODO rename
-            content=String.valueOf(a.getGenre().getId());
-        } else if (field.equals("country")) {
-            if (a.getCountry()==null) {
-                content=defaultValue;
-            } else {
-                content=a.getCountry();
+        Artist a;
+        if (keyId==-1) {
+            ArtistsTag tag=(ArtistsTag)RecordTag.getAncestor(this,"ru.ifmo.eshop.tags.storage.ArtistsTag");
+            if (tag==null) {
+                throw new JspException("No parent ArtistsTag found");
             }
-        } else if (field.equals("beginYear")) {
-            if (a.getBeginYear()==null) {
-                content=defaultValue;
-            } else {
-                content=String.valueOf(a.getBeginYear());
-            }
-        } else if (field.equals("endYear")) {
-            if (a.getEndYear()==null) {
-                content=defaultValue;
-            } else {
-                content=String.valueOf(a.getEndYear());
-            }
-        //TODO think about requesting genre fields in another way
-        } else if (field.equals("genre.title")) {
-            content=a.getGenre().getTitle();
+            a=tag.fetchArtist();
         } else {
-            throw new JspException("ArtistTag:Wrong field name");
+            StorageManager sm=(StorageManager)pageContext.getAttribute("storageManager",PageContext.REQUEST_SCOPE);
+            try {
+                a = sm.getArtist(keyId);
+            } catch (SQLException ex) {
+                throw new JspException(ex);
+            }
         }
-        if (content.length()>length) {
-            content=content.substring(0,length)+"...";
+        if (a==null) {
+            try {
+                pageContext.getOut().print(message);
+                return SKIP_BODY;
+            } catch (IOException ex) {
+                throw new JspException(ex);
+            }
         }
-        try {
-            pageContext.getOut().print(content);
-            return SKIP_BODY;
-        } catch (IOException ex) {
-            throw new JspException(ex);
-        }
-    }
-
-    @Override
-    public void release() {
-        field = null;
+        fieldMap.put("id", a.getId());
+        fieldMap.put("genre.id",a.getGenre().getId());
+        fieldMap.put("genre.title", a.getGenre().getTitle());
+        fieldMap.put("country",a.getCountry());
+        fieldMap.put("title",a.getTitle());
+        fieldMap.put("beginYear",a.getBeginYear());
+        fieldMap.put("endYear", a.getEndYear());
+        return EVAL_BODY_INCLUDE;
     }
 }

@@ -2,5 +2,5 @@
 <%@ taglib uri="/WEB-INF/tlds/template.tld" prefix="template" %>
 
 <template:insert template="/WEB-INF/user/template.jsp">
-  <template:put name="content" content="/WEB-INF/user/items.jsp" />
+  <template:put name="content" content="/WEB-INF/user/items/index.jsp" />
 </template:insert>

@@ -12,14 +12,14 @@
             error=true;
             title.style.border='1px solid #f00';
         } else {
-            title.style.boeder='';
+            title.style.border='';
         }
         if (country.value!=null &&
             country.value.length > <%= Label.COUNTRY_LENGTH %>) {
             error=true;
             country.style.border='1px solid #f00';
         } else {
-            country.style.boeder='';
+            country.style.border='';
         }
         if (error) {
             event.preventDefault();
@@ -31,9 +31,15 @@ ResourceBundle messages=(ResourceBundle)pageContext.getAttribute("resourceBundle
 String act=request.getParameter("act");
 boolean add=true;
 boolean error=false;
+int id=0;
 if (act!=null && act.equals("edit")) {
     if (request.getParameter("id")!=null) {
         add=false;
+        try {
+            id=Integer.parseInt(request.getParameter("id"));
+        } catch(NumberFormatException e) {
+            error=true;
+        }
     } else {
         error=true;
     }
@@ -55,21 +61,22 @@ if (error) {%>
 </form>
 <br/><small><%= messages.getString("forms.mandatory") %></small>
 <%} else {%>
-<storage:record entity="Label" identity="<%= request.getParameter("id") %>"
+<storage:manager/>
+<storage:label keyId="<%= id %>"
 message="<%= messages.getString("messages.label.lost")%>">
 <b><%= messages.getString("admin.forms.labels.edit") %></b><br/><br/>
 <form method="post" action="/admin/label" id="labelForm" onsubmit="onSubmit(event);">
     <input type="hidden" name="act" value="save"/>
-    <input type="hidden" name="id" value="<storage:label field="id"/>"/>
+    <input type="hidden" name="id" value="<storage:field name="id"/>"/>
     <%= messages.getString("admin.forms.labels.title") %><span class="red">*</span>:
-    <input type="text" name="title" id="title" value="<storage:label field="title"/>"/>
+    <input type="text" name="title" id="title" value="<storage:field name="title"/>"/>
     <small><%= messages.getString("admin.forms.labels.title.notice") %></small><br/>
     <%= messages.getString("admin.forms.labels.country") %>:
-    <input type="text" name="country" id="country" value="<storage:label field="country"/>">
+    <input type="text" name="country" id="country" value="<storage:field name="country"/>">
     <small><%= messages.getString("admin.forms.labels.country.notice") %></small><br/>
     <input type="submit" value="<%= messages.getString("forms.save") %>"/>
 </form>
 <br/><small><%= messages.getString("forms.mandatory") %></small>
-</storage:record>
+</storage:label>
 <% }
 }%>

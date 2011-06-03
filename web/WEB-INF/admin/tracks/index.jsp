@@ -35,37 +35,40 @@ ResourceBundle messages=(ResourceBundle)pageContext.getAttribute("resourceBundle
                 <b><%= messages.getString("forms.actions") %></b>
             </td>
         </tr>
-        <storage:record identity="last" entity="Track"
+        <storage:manager/>
+        <storage:tracks end="20"
         message="<%= "<tr><td colspan=4>"+messages.getString("messages.tracks.notfound")+"</td></tr>" %>">
-            <tr>
-                <td class="column"><input type="checkbox" class="record"
-                           value="<storage:track field="id"/>"/></td>
-                <td class="column">
-                    <storage:track field="id"/>
-                </td>
-                <td class="column">
-                    <storage:track field="item.title"/> (<storage:track field="itemId"/>)
-                </td>
-                <td class="column">
-                    <storage:track field="artist.title"/> (<storage:track field="artistId"/>)
-                </td>
-                <td class="column">
-                    <storage:track field="trackNumber"/>
-                </td>
-                <td class="column">
-                    <storage:track field="title"/>
-                </td>
-                <td>
-                    <a href="/admin/tracks.jsp?act=edit&id=<storage:track field="id"/>">
-                        <%= messages.getString("forms.edit") %>
-                    </a>
-                    <!--<a href="/admin/track?act=del&ids=<storage:track field="id"/>"
-                       onclick="return confirm('<%= messages.getString("confirm") %>')">
-                        <%= messages.getString("forms.delete") %>
-                    </a>-->
-                </td>
-            </tr>
-        </storage:record>
+            <storage:track>
+                <tr>
+                    <td class="column"><input type="checkbox" class="record"
+                               value="<storage:field name="id"/>"/></td>
+                    <td class="column">
+                        <storage:field name="id"/>
+                    </td>
+                    <td class="column">
+                        <storage:field name="item.title"/> (<storage:field name="item.id"/>)
+                    </td>
+                    <td class="column">
+                        <storage:field name="artist.title"/> (<storage:field name="artist.id"/>)
+                    </td>
+                    <td class="column">
+                        <storage:field name="trackNumber"/>
+                    </td>
+                    <td class="column">
+                        <storage:field name="title"/>
+                    </td>
+                    <td>
+                        <a href="/admin/tracks.jsp?act=edit&id=<storage:field name="id"/>">
+                            <%= messages.getString("forms.edit") %>
+                        </a>
+                        <!--<a href="/admin/track?act=del&ids=<storage:field name="id"/>"
+                           onclick="return confirm('<%= messages.getString("confirm") %>')">
+                            <%= messages.getString("forms.delete") %>
+                        </a>-->
+                    </td>
+                </tr>
+            </storage:track>
+        </storage:tracks>
     </table><br/>
 <input type="submit" value="<%= messages.getString("forms.delete") %>"
        onclick="deleteRecords(event)"/>

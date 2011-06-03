@@ -10,17 +10,17 @@ import ru.ifmo.eshop.storage.Delivery;
  * @author alex
  * 31.05.2011
  */
-public class DeliveryListTag extends EntityTag {
+public class DeliveryListTag extends RecordTag {
     private int index;
     private List<DeliveryItem> items;
 
     @Override
     public int doStartTag() throws JspException {
-        RecordTag recordTag=(RecordTag) RecordTag.getAncestor(this,"ru.ifmo.eshop.tags.storage.RecordTag");
-        if (recordTag==null) {
-            throw new JspException("No parent RecordTag found");
+        DeliveryTag deliveryTag=(DeliveryTag) RecordTag.getAncestor(this,"ru.ifmo.eshop.tags.storage.DeliveryTag");
+        if (deliveryTag==null) {
+            throw new JspException("No parent DeliveryTag found");
         }
-        items=((Delivery)recordTag.getRecord()).getItems();
+        items=deliveryTag.getDelivery().getItems();
         index=0;
         return EVAL_BODY_INCLUDE;
     }

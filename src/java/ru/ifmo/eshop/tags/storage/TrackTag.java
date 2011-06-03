@@ -1,69 +1,74 @@
 package ru.ifmo.eshop.tags.storage;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.PageContext;
+import ru.ifmo.eshop.storage.StorageManager;
 import ru.ifmo.eshop.storage.Track;
 
-public class TrackTag extends EntityTag {
+public class TrackTag extends RecordTag {
+
+    private int keyId=-1;
+    private String message;
+
+    public int getKeyId() {
+        return keyId;
+    }
+
+    public void setKeyId(int id) {
+        if (id<=0) throw new IllegalArgumentException("id is <=0");
+        this.keyId=id;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
     @Override
     public int doStartTag() throws JspException {
-        RecordTag recordTag=(RecordTag) RecordTag.getAncestor(this,"ru.ifmo.eshop.tags.storage.RecordTag");
-        if (recordTag==null) {
-            throw new JspException("No parent RecordTag found");
-        }
-        Track t=(Track)recordTag.getRecord();
-        String content;
-        //TODO validation of attribute values?
-        if (field.equals("id")) {
-            content=String.valueOf(t.getId());
-        } else if (field.equals("artistId")) {
-            content=String.valueOf(t.getArtist().getId());
-        } else if (field.equals("itemId")) {
-            content=String.valueOf(t.getItem().getId());
-        } else if (field.equals("title")) {
-            content=t.getTitle();
-        } else if (field.equals("trackNumber")) {
-            content=String.valueOf(t.getTrackNumber());
-        } else if (field.equals("composer")) {
-            if (t.getComposer()==null) {
-                content=defaultValue;
-            } else {
-                content=t.getComposer();
+        Track t;
+        if (keyId==-1) {
+            TracksTag tag=(TracksTag)RecordTag.getAncestor(this,"ru.ifmo.eshop.tags.storage.TracksTag");
+            if (tag==null) {
+                throw new JspException("No parent ItemsTag found");
             }
-        } else if (field.equals("duration")) {
-            if (t.getDuration()==null) {
-                content=defaultValue;
-            } else {
-                content=t.getDuration();
-            }
-        } else if (field.equals("isVideo")) {
-            //TODO returned bool value
-            if (t.isVideo) {
-                content="True";
-            } else {
-                content="False";
-            }
-        } else if (field.equals("item.title")) {
-            content=t.getItem().getTitle();
-        } else if (field.equals("artist.title")) {
-            content=t.getArtist().getTitle();
+            t=tag.fetchTrack();
         } else {
-            throw new JspException("TrackTag:Wrong field name");
+            StorageManager sm=(StorageManager)pageContext.getAttribute("storageManager",PageContext.REQUEST_SCOPE);
+            try {
+                t = sm.getTrack(keyId);
+            } catch (SQLException ex) {
+                throw new JspException(ex);
+            }
         }
-        if (content.length()>length) {
-            content=content.substring(0,length)+"...";
+        if (t==null) {
+            try {
+                pageContext.getOut().print(message);
+                return SKIP_BODY;
+            } catch (IOException ex) {
+                throw new JspException(ex);
+            }
         }
-        try {
-            pageContext.getOut().print(content);
-            return SKIP_BODY;
-        } catch (IOException ex) {
-            throw new JspException(ex);
-        }
+        fieldMap.put("id", t.getId());
+        fieldMap.put("artist.id",t.getArtist().getId());
+        fieldMap.put("artist.title",t.getArtist().getTitle());
+        fieldMap.put("item.id",t.getItem().getId());
+        fieldMap.put("item.title",t.getItem().getTitle());
+        fieldMap.put("title",t.getTitle());
+        fieldMap.put("trackNumber",t.getTrackNumber());
+        fieldMap.put("composer", t.getComposer());
+        fieldMap.put("duration",t.getDuration());
+        fieldMap.put("isVideo", t.isVideo);
+        return EVAL_BODY_INCLUDE;
     }
 
     @Override
     public void release() {
-        field = null;
+        message = null;
     }
 }

@@ -35,37 +35,39 @@ ResourceBundle messages=(ResourceBundle)pageContext.getAttribute("resourceBundle
                 <b><%= messages.getString("forms.actions") %></b>
             </td>
         </tr>
-        <storage:record identity="last" entity="Item"
+        <storage:items end="20"
         message="<%= "<tr><td colspan=4>"+messages.getString("messages.items.notfound")+"</td></tr>" %>">
-            <tr>
-                <td class="column"><input type="checkbox" class="record"
-                           value="<storage:item field="id"/>"/></td>
-                <td class="column">
-                    <storage:item field="id"/>
-                </td>
-                <td class="column">
-                    <storage:item field="mediaType"/>
-                </td>
-                <td class="column">
-                    <storage:item field="format"/>
-                </td>
-                <td class="column">
-                    <storage:item field="label.title"/> (<storage:item field="labelId"/>)
-                </td>
-                <td class="column">
-                    <storage:item field="title"/>
-                </td>
-                <td>
-                    <a href="/admin/items.jsp?act=edit&id=<storage:item field="id"/>">
-                        <%= messages.getString("forms.edit") %>
-                    </a>
-                    <!--<a href="/admin/item?act=del&ids=<storage:item field="id"/>"
-                       onclick="return confirm('<%= messages.getString("confirm") %>')">
-                        <%= messages.getString("forms.delete") %>
-                    </a>-->
-                </td>
-            </tr>
-        </storage:record>
+            <storage:item>
+                <tr>
+                    <td class="column"><input type="checkbox" class="record"
+                               value="<storage:field name="id"/>"/></td>
+                    <td class="column">
+                        <storage:field name="id"/>
+                    </td>
+                    <td class="column">
+                        <storage:field name="mediaType"/>
+                    </td>
+                    <td class="column">
+                        <storage:field name="format"/>
+                    </td>
+                    <td class="column">
+                        <storage:field name="label.title"/> (<storage:field name="label.id"/>)
+                    </td>
+                    <td class="column">
+                        <storage:field name="title"/>
+                    </td>
+                    <td>
+                        <a href="/admin/items.jsp?act=edit&id=<storage:field name="id"/>">
+                            <%= messages.getString("forms.edit") %>
+                        </a>
+                        <!--<a href="/admin/item?act=del&ids=<storage:field name="id"/>"
+                           onclick="return confirm('<%= messages.getString("confirm") %>')">
+                            <%= messages.getString("forms.delete") %>
+                        </a>-->
+                    </td>
+                </tr>
+            </storage:item>
+        </storage:items>
     </table><br/>
 <input type="submit" value="<%= messages.getString("forms.delete") %>"
        onclick="deleteRecords(event)"/>

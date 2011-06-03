@@ -1,60 +1,73 @@
 package ru.ifmo.eshop.tags.storage;
 
 import java.io.IOException;
+import java.sql.SQLException;
+import java.util.GregorianCalendar;
+//import java.util.HashSet;
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.PageContext;
 import ru.ifmo.eshop.storage.Item;
+import ru.ifmo.eshop.storage.StorageManager;
 
-public class ItemTag extends EntityTag {
+public final class ItemTag extends RecordTag {
+    //private static HashSet<String> fields=new HashSet<String>();
+    private static GregorianCalendar calendar=new GregorianCalendar();
+    /*static {
+        fields.add("id");
+        fields.add("mediaType");
+        fields.add("format");
+        fields.add("label.title");
+        fields.add("label.id");
+        fields.add("title");
+        fields.add("cover");
+        fields.add("releaseDate");
+    }*/
+    //TODO field list needed?
 
     @Override
     public int doStartTag() throws JspException {
-        RecordTag recordTag=(RecordTag) RecordTag.getAncestor(this,"ru.ifmo.eshop.tags.storage.RecordTag");
-        if (recordTag==null) {
-            throw new JspException("No parent RecordTag found");
-        }
-        Item i=(Item)recordTag.getRecord();
-        String content;
-        //TODO validation of attribute values?
-        if (field.equals("id")) {
-            content=String.valueOf(i.getId());
-        } else if (field.equals("mediaType")) {
-            content=i.getMediaType();
-        } else if (field.equals("format")) {
-            content=i.getFormat();
-        } else if (field.equals("labelId")) {
-            if (i.getLabel()!=null) {
-                content=String.valueOf(i.getLabel().getId());
-            } else {
-                content=defaultValue;
+        Item i;
+        if (keyId==-1) {
+            ItemsTag tag=(ItemsTag)RecordTag.getAncestor(this,"ru.ifmo.eshop.tags.storage.ItemsTag");
+            if (tag==null) {
+                throw new JspException("No parent ItemsTag found");
             }
-        } else if (field.equals("title")) {
-            content=i.getTitle();
-        } else if (field.equals("cover")) {
-            if (i.getCover()==null) {
-                content=defaultValue;
-            } else {
-                content=i.getCover();
-            }
-        } else if (field.equals("releaseDate")) {
-            content=i.getReleaseDate().toString();//TODO date format
-        } else if (field.equals("label.title")) {
-            content=i.getLabel().getTitle();
+            i=tag.fetchItem();
         } else {
-            throw new JspException("ItemTag:Wrong field name");
+            StorageManager sm=(StorageManager)pageContext.getAttribute("storageManager",PageContext.REQUEST_SCOPE);
+            try {
+                i = sm.getItem(keyId);
+            } catch (SQLException ex) {
+                throw new JspException(ex);
+            }
         }
-        if (content.length()>length) {
-            content=content.substring(0,length)+"...";
+        if (i==null) {
+            try {
+                pageContext.getOut().print(message);
+                return SKIP_BODY;
+            } catch (IOException ex) {
+                throw new JspException(ex);
+            }
         }
-        try {
-            pageContext.getOut().print(content);
-            return SKIP_BODY;
-        } catch (IOException ex) {
-            throw new JspException(ex);
+        fieldMap.put("id", i.getId());
+        fieldMap.put("mediaType",i.getMediaType());
+        fieldMap.put("format", i.getFormat());
+        if (i.getLabel()!=null) {
+            fieldMap.put("label.title", i.getLabel().getTitle());
+            fieldMap.put("label.id",i.getLabel().getId());
+        } else {
+            fieldMap.put("label.title", null);
+            fieldMap.put("label.id",null);
         }
-    }
-
-    @Override
-    public void release() {
-        field = null;
+        fieldMap.put("title",i.getTitle());
+        fieldMap.put("cover",i.getCover());
+        fieldMap.put("releaseDate", i.getReleaseDate());
+        //TODO replace with children tags?
+        fieldMap.put("artist.id", i.getArtists().get(0).getId());
+        fieldMap.put("artist.title", i.getArtists().get(0).getTitle());
+        calendar.setTime(i.getReleaseDate());
+        fieldMap.put("year", calendar.get(GregorianCalendar.YEAR));
+        fieldMap.put("price", i.getPrice());
+        return EVAL_BODY_INCLUDE;
     }
 }

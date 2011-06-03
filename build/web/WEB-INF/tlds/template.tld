@@ -19,7 +19,7 @@
 	<tag>   
 		<name>put</name>
 		<tagclass>ru.ifmo.eshop.tags.templates.PutTag</tagclass>
-		<bodycontent>JSP</bodycontent>
+		<bodycontent>empty</bodycontent>
 		<attribute>
 			<name>name</name>
 			<required>true</required>
@@ -41,7 +41,7 @@
 	<tag>   
 		<name>get</name>
 		<tagclass>ru.ifmo.eshop.tags.templates.GetTag</tagclass>
-		<bodycontent>JSP</bodycontent>
+		<bodycontent>empty</bodycontent>
 		<attribute>
 			<name>name</name>
 			<required>true</required>

@@ -30,31 +30,34 @@ ResourceBundle messages=(ResourceBundle)pageContext.getAttribute("resourceBundle
                 <b><bundle:message key="forms.actions"/></b>
             </td>
         </tr>
-        <storage:record identity="last" entity="Artist"
+        <storage:manager/>
+        <storage:artists end="20"
         message="<%= "<tr><td colspan=4>"+messages.getString("messages.artists.notfound")+"</td></tr>" %>">
-            <tr>
-                <td class="column"><input type="checkbox" class="record"
-                           value="<storage:artist field="id"/>"/></td>
-                <td class="column">
-                    <storage:artist field="id"/>
-                </td>
-                <td class="column">
-                    <storage:artist field="genre.title"/> (<storage:artist field="genreId"/>)
-                </td>
-                <td class="column">
-                    <storage:artist field="title"/>
-                </td>
-                <td>
-                    <a href="/admin/artists.jsp?act=edit&id=<storage:artist field="id"/>">
-                        <bundle:message key="forms.edit"/>
-                    </a>
-                    <!--<a href="/admin/artist?act=del&ids=<storage:artist field="id"/>"
-                       onclick="return confirm('<bundle:message key="confirm"/>')">
-                        <bundle:message key="forms.delete"/>
-                    </a>-->
-                </td>
-            </tr>
-        </storage:record>
+            <storage:artist>
+                <tr>
+                    <td class="column"><input type="checkbox" class="record"
+                               value="<storage:field name="id"/>"/></td>
+                    <td class="column">
+                        <storage:field name="id"/>
+                    </td>
+                    <td class="column">
+                        <storage:field name="genre.title"/> (<storage:field name="genre.id"/>)
+                    </td>
+                    <td class="column">
+                        <storage:field name="title"/>
+                    </td>
+                    <td>
+                        <a href="/admin/artists.jsp?act=edit&id=<storage:field name="id"/>">
+                            <bundle:message key="forms.edit"/>
+                        </a>
+                        <!--<a href="/admin/artist?act=del&ids=<storage:field name="id"/>"
+                           onclick="return confirm('<bundle:message key="confirm"/>')">
+                            <bundle:message key="forms.delete"/>
+                        </a>-->
+                    </td>
+                </tr>
+            </storage:artist>
+        </storage:artists>
     </table><br/>
 <input type="submit" value="<bundle:message key="forms.delete"/>"
        onclick="deleteRecords(event)"/>
