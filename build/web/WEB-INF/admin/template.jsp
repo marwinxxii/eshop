@@ -24,7 +24,7 @@ if (request.getParameter("locale") != null) {
     }
 } else {
     lang = "en";
-    Cookie[] cookies = request.getCookies();
+    Cookie[] cookies=request.getCookies();
     if (cookies == null) {
         if (locale == null) {
             locale = new Locale("en", "US");

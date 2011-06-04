@@ -28,6 +28,14 @@
         <servlet-name>DeliveryServlet</servlet-name>
         <servlet-class>ru.ifmo.eshop.servlets.DeliveryServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>LoginServlet</servlet-name>
+        <servlet-class>ru.ifmo.eshop.servlets.LoginServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>LogoutServlet</servlet-name>
+        <servlet-class>ru.ifmo.eshop.servlets.LogoutServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>GenreServlet</servlet-name>
         <url-pattern>/admin/genre</url-pattern>
@@ -63,6 +71,22 @@
     <servlet-mapping>
         <servlet-name>DeliveryServlet</servlet-name>
         <url-pattern>/admin/delivery</url-pattern>
+    </servlet-mapping>
+    <filter>
+        <filter-name>LoginFilter</filter-name>
+        <filter-class>ru.ifmo.eshop.servlets.LoginFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>LoginFilter</filter-name>
+        <url-pattern>/admin/*</url-pattern>
+    </filter-mapping>
+    <servlet-mapping>
+        <servlet-name>LoginServlet</servlet-name>
+        <url-pattern>/admin/login</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LogoutServlet</servlet-name>
+        <url-pattern>/admin/logout</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
