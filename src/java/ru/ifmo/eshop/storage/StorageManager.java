@@ -1,5 +1,7 @@
 package ru.ifmo.eshop.storage;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -1173,5 +1175,35 @@ public class StorageManager {
         double price=result.getDouble(1);
         pStatement.close();
         return price;
+    }
+
+    public Customer getCustomer(int id) throws SQLException {
+        PreparedStatement statement=connection.prepareStatement(
+                "select * from customers where id=?");
+        statement.setInt(1, id);
+        ResultSet result=statement.executeQuery();
+        Customer customer=null;
+        if (result.next()) {
+            customer=new Customer(id, result.getString("email"),
+                    result.getString("password"),result.getString("address"),
+                    result.getString("phone"));
+        }
+        statement.close();
+        return customer;
+    }
+
+    public void addCustomer(String email,String password,String address,String phone) throws SQLException {
+        try {
+            PreparedStatement statement = connection.prepareStatement(
+                    "insert into customers values(null,?,?,?,?)");
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            statement.setString(1, email);
+            statement.setString(2, md.digest(password.getBytes()).toString());
+            statement.setString(3, address);
+            statement.setString(4, phone);
+            statement.executeUpdate();
+            statement.close();
+        } catch (NoSuchAlgorithmException ex) {
+        }
     }
 }

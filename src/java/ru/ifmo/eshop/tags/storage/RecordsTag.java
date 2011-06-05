@@ -15,7 +15,7 @@ public abstract class RecordsTag extends TagSupport {
     /**
      * Message that will be displayed if no record in db was found.
      */
-    private String message;
+    protected String message;
 
     public int getEnd() {
         return end;

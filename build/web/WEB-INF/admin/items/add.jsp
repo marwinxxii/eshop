@@ -79,16 +79,43 @@ if (act!=null && act.equals("edit")) {
 if (error) {%>
     <h1><%= messages.getString("messages.error.id") %></h1>
 <%} else {
+%>
+<storage:manager/>
+<%
     if(add){%>
 <b><%= messages.getString("admin.forms.items.add") %></b><br /><br/>
 <form method="post" action="/admin/item" onsubmit="onSubmit(event);">
     <input type="hidden" name="act" value="add"/>
     <%= messages.getString("admin.forms.items.mediaType") %><span class="red">*</span>:
-    <input type="text" name="mediaType" id="mediaType" maxlength="<%= Item.MEDIATYPE_LENGTH %>" /><br/>
+    <!--<input type="text" name="mediaType" id="mediaType" maxlength="<%= Item.MEDIATYPE_LENGTH %>" /><br/>-->
+    <select name="mediaType" id="mediaType">
+        <option value="CD">CD</option>
+        <option value="DVD">DVD</option>
+        <option value="VHS">VHS</option>
+        <option value="Vinyl">Vinyl</option>
+    </select>
     <%= messages.getString("admin.forms.items.format") %><span class="red">*</span>:
-    <input type="text" name="format" id="format" /><br/>
+    <!--<input type="text" name="format" id="format" /><br/>-->
+    <select name="format" id="format">
+        <option value="LP">LP (Long Play)</option>
+        <option value="EP">EP (Extended Play)</option>
+        <option value="SP">SP (Short Play, Single)</option>
+        <option value="Video">Video</option>
+        <option value="Box set">Box set</option>
+        <option value="Double album">Double album</option>
+    </select>
     <%= messages.getString("admin.forms.items.labelId") %>:
-    <input type="text" name="labelId" id="labelId" maxlength="6" />
+    <!--<input type="text" name="labelId" id="labelId" maxlength="6" />-->
+    <select name="labelId" id="labelId">
+        <storage:labels end="20"
+                        message="<input type=\"text\" name=\"labelId\" id=\"labelId\" maxlength=\"6\"">
+            <storage:label>
+                <option value="<storage:field name="id"/>">
+                    <storage:field name="title"/>
+                </option>
+            </storage:label>
+        </storage:labels>
+    </select><br/>
     <a href="/admin/labels?act=add"><small><%= messages.getString("admin.forms.labels.add") %></small></a><br/>
     <%= messages.getString("admin.forms.items.title") %><span class="red">*</span>:
     <input type="text" name="title" id="title" maxlength="<%= Item.TITLE_LENGTH %>" />

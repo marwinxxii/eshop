@@ -1,73 +1,19 @@
-<%@ page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html" pageEncoding="UTF-8" language="java"%>
 <%@ taglib uri="/WEB-INF/tlds/template.tld" prefix="template" %>
 <%@ taglib uri="/WEB-INF/tlds/i18n.tld" prefix="bundle" %>
-<%@ page import="java.util.ResourceBundle" %>
-<%@ page import="java.util.MissingResourceException" %>
-<%@ page import="java.util.Locale" %>
+<%@ taglib uri="/WEB-INF/tlds/storage.tld" prefix="storage" %>
+<%@ page import="javax.servlet.http.Cookie" %>
 <%
-Locale locale = request.getLocale();
-String lang = "";
-if (request.getParameter("locale") != null) {
-    lang = request.getParameter("locale").toLowerCase();
-    if (lang.equals("ru")) {
-        locale = new Locale("ru", "RU");
-        Cookie c = new Cookie("locale", "ru");
-        c.setPath("/");
-        c.setMaxAge(315360000);
-        response.addCookie(c);
-    } else {
-        lang = "en";
-        locale = new Locale("en", "US");
-        Cookie c = new Cookie("locale", "en");
-        c.setPath("/");
-        c.setMaxAge(315360000);
-        response.addCookie(c);
-    }
-} else {
-    lang = "en";
-    Cookie[] cookies = request.getCookies();
-    if (cookies == null) {
-        if (locale == null) {
-            locale = new Locale("en", "US");
-            Cookie c = new Cookie("locale", "en");
-            c.setPath("/");
-            c.setMaxAge(315360000);
-            response.addCookie(c);
-        }
-    } else {
-        boolean cookieSet = false;
-        for (Cookie c : cookies) {
-            if (c.getName().equals("locale")) {
-                if (c.getValue() != null) {
-                    lang = c.getValue().toLowerCase();
-                    if (lang.equals("ru")) {
-                        locale = new Locale("ru", "RU");
-                    } else {
-                        lang = "en";
-                        locale = new Locale("en", "US");
-                    }
-                    cookieSet = true;
-                    break;
-                }
-            }
-        }
-        if (!cookieSet) {
-            Cookie c = new Cookie("locale", "en");
-            c.setPath("/");
-            c.setMaxAge(315360000);
-            response.addCookie(c);
-        }
+boolean loggedIn=false;
+String email="";
+Cookie[] cookies=request.getCookies();
+for (Cookie c:cookies) {
+    if (c.getName().equals("email")) {
+        loggedIn=true;
+        email=c.getValue();
+        break;
     }
 }
-ResourceBundle messages;
-
-try {
-    messages = ResourceBundle.getBundle("ru.ifmo.eshop.i18n.MessagesBundle", locale);
-} catch (MissingResourceException e) {
-    locale = new Locale("en", "US");
-    messages = ResourceBundle.getBundle("ru.ifmo.eshop.i18n.MessagesBundle", locale);
-}
-pageContext.setAttribute("resourceBundle", messages,PageContext.REQUEST_SCOPE);
 %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">
@@ -77,11 +23,68 @@ pageContext.setAttribute("resourceBundle", messages,PageContext.REQUEST_SCOPE);
     <title>Eshop</title>
     <link type="text/css" rel="stylesheet" href="/static/main.css">
     <link type="application/rss+xml" rel="alternate" title="RSS" href="/rss">
+    <script type="text/javascript" src="/static/nano.js"></script>
+    <script type="text/javascript" src="/static/nano.cookie.js"></script>
     <script type="text/javascript">
+        var cart=[];
+        var cartLink='<bundle:message key="user.menu.cart"/>';
+        var confirmMessage='<bundle:message key="confirm"/>';
+        
+        nano(function() {
+            var temp=nano.cookie.read('cart');
+            if (temp!=null && temp!='') {
+                temp=temp.split('_');
+                for (var i=0;i<temp.length;i++) {
+                    var k=temp[i].indexOf('-');
+                    cart.push({
+                        item:temp[i].substr(0, k),
+                        count:temp[i].substr(k+1,temp[i].length-k-1)
+                    });
+                }
+            }
+            if (cart.length!=0) {
+                document.getElementById('cart').innerHTML=cartLink+
+                    '<span style="font-size:80%"> ('+cart.length+')</span>';
+            }
+            //nano.cookie.write('cart','',nano.time(nano.time()+(30*60*1000),'UTC'),'/');
+        });
+        function addToCart(item) {
+            if (cart==null || cart.length==0) {
+                cart=[{
+                    item:item,
+                    count:1}];
+            } else {
+                var incart=false;
+                for (var i=0;i<cart.length;i++) {
+                    if (cart[i].item==item) {
+                        cart[i].count++;
+                        incart=true;
+                        break;
+                    }
+                }
+                if (!incart) {
+                    cart.push({
+                        item:item,
+                        count:1
+                    });
+                }
+            }
+            var temp='';
+            for (var i=0;i<cart.length;i++) {
+                temp+=cart[i].item+'-'+cart[i].count;
+                if (i!=cart.length-1) {
+                    temp+='_';
+                }
+            }
+            nano.cookie.write('cart',temp,
+                    nano.time(nano.time()+(30*60*1000), 'UTC'),'/');
+            temp=document.getElementById('cart');
+            temp.innerHTML=cartLink+'<span style="font-size:80%"> ('+cart.length+')</span>';
+        }
 	function validateEmail(elementValue){
 		var emailPattern = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
 		if (!emailPattern.test(elementValue)) {
-			window.alert('incorrect email');
+                    alert('Incorrect email');
 			return false;
 		} else {
 			return true;
@@ -103,9 +106,10 @@ pageContext.setAttribute("resourceBundle", messages,PageContext.REQUEST_SCOPE);
 		} else {
 			sw.style.visibility='hidden';
 		}
-	}
+        }
 	</script>
   </head>
+<storage:manager/>
 <body>
   <form action="http://www.google.com/cse" id="cse-search-box">
     <div style="float:left;text-align:left">
@@ -114,13 +118,19 @@ pageContext.setAttribute("resourceBundle", messages,PageContext.REQUEST_SCOPE);
       <input class="gwt-TextBox" name="q" size="31" type="text">
       <input src="/static/images/find.png" name="sa" title="Search" value="Search" type="image">
     </div>
-    <a class="topMenuLink" href="/subscribe" title="<bundle:message key="user.subscribe"/>" onclick="showSubscribe();return false;">
+    <a class="topMenuLink" href="/subscribe" title="<bundle:message key="user.subscription.notice"/>" onclick="showSubscribe();return false;">
         <img src="/static/images/email.png"> <bundle:message key="user.subscription"/></a>
     <a class="topMenuLink" href="#"><img src="/static/images/t_mini-b.png"> Eshop в Twitter</a>
 
-    <a class="topMenuLink" href="register.html" onclick="showLogin();return false;">
+    <% if (loggedIn) {%>
+    <a class="topMenuLink" href="/user.jsp"><!-- onclick="showLogin();return false;">-->
+        <img src="/static/images/user.png"> <%= email %>
+    </a>
+    <% } else {%>
+    <a class="topMenuLink" href="/signup.jsp"><!-- onclick="showLogin();return false;">-->
         <img src="/static/images/user.png"> <bundle:message key="user.signup"/>
     </a>
+    <%} %>
   </form>
   <div id="loginMenu" style="visibility:hidden">
 	<ul class="loginMenu">
@@ -135,23 +145,34 @@ pageContext.setAttribute("resourceBundle", messages,PageContext.REQUEST_SCOPE);
 	<bundle:message key="user.email"/>:<br>
 	<input name="page" value="/" type="hidden">
 	<input id="email" class="gwt-TextBox" name="email" maxlength="50" type="text"><br>
-	<input value="Subscribe" onclick="return validateEmail(document.getElementById('email').value)" type="submit">
+	<input value="<bundle:message key="user.subscribe"/>"
+               onclick="return validateEmail(document.getElementById('email').value)" type="submit">
 </form>
 <div id="leftMenu">
 	<ul class="leftMenu">
-		<li class="menuHeader"><bundle:message key="user.menu"/></li>
+		<!--<li class="menuHeader"><bundle:message key="user.menu"/></li>-->
 		<li class="leftMenu">
                     <a href="/" class="menuLink">
-                        <bundle:message key="user.main"/>
+                        <bundle:message key="user.menu.main"/>
                     </a>
                 </li>
 		<li class="leftMenu">
-                    <a href="artists.html" class="menuLink">
-                        <bundle:message key="user.artists"/>
+                    <a href="/artists.jsp" class="menuLink">
+                        <bundle:message key="user.menu.artists"/>
+                    </a>
+                </li>
+                <li class="leftMenu">
+                    <a href="/labels.jsp" class="menuLink">
+                        <bundle:message key="user.menu.labels"/>
+                    </a>
+                </li>
+                <li class="leftMenu">
+                    <a href="/genres.jsp" class="menuLink">
+                        <bundle:message key="user.menu.genres"/>
                     </a>
                 </li>
 		<li class="leftMenu">
-                    <a href="cart.html" class="menuLink">
+                    <a href="/cart.jsp" class="menuLink" id="cart">
                         <bundle:message key="user.menu.cart"/>
                     </a>
                 </li>

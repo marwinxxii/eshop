@@ -1,8 +1,20 @@
-<%@ page contentType="text/html" pageEncoding="UTF-8" language="java" session="true"%>
+<%@ page contentType="text/html" pageEncoding="UTF-8" language="java"%>
 <%@ taglib uri="/WEB-INF/tlds/template.tld" prefix="template" %>
 <%@ taglib uri="/WEB-INF/tlds/i18n.tld" prefix="bundle" %>
 <%@ taglib uri="/WEB-INF/tlds/storage.tld" prefix="storage" %>
-
+<%@ page import="javax.servlet.http.Cookie" %>
+<%
+boolean loggedIn=false;
+String email="";
+Cookie[] cookies=request.getCookies();
+for (Cookie c:cookies) {
+    if (c.getName().equals("email")) {
+        loggedIn=true;
+        email=c.getValue();
+        break;
+    }
+}
+%>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -14,28 +26,65 @@
     <script type="text/javascript" src="/static/nano.js"></script>
     <script type="text/javascript" src="/static/nano.cookie.js"></script>
     <script type="text/javascript">
-        var cart;
-        var cartLink;
+        var cart=[];
+        var cartLink='<bundle:message key="user.menu.cart"/>';
+        var confirmMessage='<bundle:message key="confirm"/>';
         
         nano(function() {
-            cart=nano.cookie.read('cart');
-            cartLink=document.getElementById('cart').innerHTML;
+            var temp=nano.cookie.read('cart');
+            if (temp!=null && temp!='') {
+                temp=temp.split('_');
+                for (var i=0;i<temp.length;i++) {
+                    var k=temp[i].indexOf('-');
+                    cart.push({
+                        item:temp[i].substr(0, k),
+                        count:temp[i].substr(k+1,temp[i].length-k-1)
+                    });
+                }
+            }
+            if (cart.length!=0) {
+                document.getElementById('cart').innerHTML=cartLink+
+                    '<span style="font-size:80%"> ('+cart.length+')</span>';
+            }
+            //nano.cookie.write('cart','',nano.time(nano.time()+(30*60*1000),'UTC'),'/');
         });
         function addToCart(item) {
-            if (cart==null || cart=='') {
-                cart=item;
+            if (cart==null || cart.length==0) {
+                cart=[{
+                    item:item,
+                    count:1}];
             } else {
-                cart+=','+item;
+                var incart=false;
+                for (var i=0;i<cart.length;i++) {
+                    if (cart[i].item==item) {
+                        cart[i].count++;
+                        incart=true;
+                        break;
+                    }
+                }
+                if (!incart) {
+                    cart.push({
+                        item:item,
+                        count:1
+                    });
+                }
             }
-            nano.cookie.write('cart',cart,
+            var temp='';
+            for (var i=0;i<cart.length;i++) {
+                temp+=cart[i].item+'-'+cart[i].count;
+                if (i!=cart.length-1) {
+                    temp+='_';
+                }
+            }
+            nano.cookie.write('cart',temp,
                     nano.time(nano.time()+(30*60*1000), 'UTC'),'/');
-            var temp=document.getElementById('cart');
-            temp.innerHTML=cartLink+'<span style="font-size:80%">('+cart.split(',').length+')</span>';
+            temp=document.getElementById('cart');
+            temp.innerHTML=cartLink+'<span style="font-size:80%"> ('+cart.length+')</span>';
         }
 	function validateEmail(elementValue){
 		var emailPattern = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
 		if (!emailPattern.test(elementValue)) {
-			window.alert('incorrect email');
+                    alert('Incorrect email');
 			return false;
 		} else {
 			return true;
@@ -57,7 +106,7 @@
 		} else {
 			sw.style.visibility='hidden';
 		}
-	}
+        }
 	</script>
   </head>
 <storage:manager/>
@@ -73,9 +122,15 @@
         <img src="/static/images/email.png"> <bundle:message key="user.subscription"/></a>
     <a class="topMenuLink" href="#"><img src="/static/images/t_mini-b.png"> Eshop в Twitter</a>
 
-    <a class="topMenuLink" href="/signup.jsp" onclick="showLogin();return false;">
+    <% if (loggedIn) {%>
+    <a class="topMenuLink" href="/user.jsp"><!-- onclick="showLogin();return false;">-->
+        <img src="/static/images/user.png"> <%= email %>
+    </a>
+    <% } else {%>
+    <a class="topMenuLink" href="/signup.jsp"><!-- onclick="showLogin();return false;">-->
         <img src="/static/images/user.png"> <bundle:message key="user.signup"/>
     </a>
+    <%} %>
   </form>
   <div id="loginMenu" style="visibility:hidden">
 	<ul class="loginMenu">

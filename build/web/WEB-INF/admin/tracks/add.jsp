@@ -79,17 +79,40 @@ if (act!=null && act.equals("edit")) {
 if (error) {%>
     <h1><%= messages.getString("messages.error.id") %></h1>
 <%} else {
+%>
+<storage:manager/>
+<%
     if(add){%>
 <b><%= messages.getString("admin.forms.tracks.add") %></b><br /><br/>
 <form method="post" action="/admin/track" onsubmit="onSubmit(event);">
     <input type="hidden" name="act" value="add"/>
     <%= messages.getString("admin.forms.tracks.artistId") %><span class="red">*</span>:
-    <input type="text" name="artistId" id="artistId" maxlength="6" />
+    <!--<input type="text" name="artistId" id="artistId" maxlength="6" />-->
+    <select name="artistId" id="artistId">
+        <storage:artists end="20"
+                        message="<input type=\"text\" name=\"artistId\" id=\"artistId\" maxlength=\"6\"">
+            <storage:artist>
+                <option value="<storage:field name="id"/>">
+                    <storage:field name="title"/>
+                </option>
+            </storage:artist>
+        </storage:artists>
+    </select>
     <a href="/admin/artists.jsp?act=add">
         <small><%= messages.getString("admin.forms.artists.add") %></small>
     </a><br/>
     <%= messages.getString("admin.forms.tracks.itemId") %><span class="red">*</span>:
-    <input type="text" name="itemId" id="itemId" maxlength="6" />
+    <!--<input type="text" name="itemId" id="itemId" maxlength="6" />-->
+    <select name="itemId" id="itemId">
+        <storage:items end="20"
+                        message="<input type=\"text\" name=\"itemId\" id=\"itemId\" maxlength=\"6\"">
+            <storage:item>
+                <option value="<storage:field name="id"/>">
+                    <storage:field name="title"/>
+                </option>
+            </storage:item>
+        </storage:items>
+    </select>
     <a href="/admin/items.jsp?act=add">
         <small><%= messages.getString("admin.forms.items.add") %></small>
     </a><br/>
@@ -109,7 +132,6 @@ if (error) {%>
 </form>
 <br/><small><%= messages.getString("forms.mandatory") %></small>
 <%} else {%>
-<storage:manager/>
 <storage:track keyId="<%= id %>"
 message="<%= messages.getString("messages.track.lost")%>">
 <b><%= messages.getString("admin.forms.tracks.edit") %></b><br /><br/>

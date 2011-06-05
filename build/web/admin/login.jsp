@@ -1,8 +1,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="/WEB-INF/tlds/i18n.tld" prefix="bundle" %>
-<%@ page import="java.util.ResourceBundle" %>
-<%@ page import="java.util.MissingResourceException" %>
-<%@ page import="java.util.Locale" %>
+<%@ taglib uri="/WEB-INF/tlds/i18n.tld" prefix="bundle" %>
+<bundle:get/>
 <%
 Cookie[] cookies=request.getCookies();
 String ret="/admin/index.jsp";
@@ -14,16 +13,6 @@ if (cookies!=null) {
         }
     }
 }
-ResourceBundle messages;
-//Locale locale=request.getLocale();
-Locale locale = new Locale("en", "US");
-try {
-    messages = ResourceBundle.getBundle("ru.ifmo.eshop.i18n.MessagesBundle", locale);
-} catch (MissingResourceException e) {
-    locale = new Locale("en", "US");
-    messages = ResourceBundle.getBundle("ru.ifmo.eshop.i18n.MessagesBundle", locale);
-}
-pageContext.setAttribute("resourceBundle", messages,PageContext.REQUEST_SCOPE);
 %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">

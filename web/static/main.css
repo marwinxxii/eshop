@@ -195,3 +195,13 @@ td.itemsTable {
     width:50%;
     vertical-align: top;
 }
+.cart {
+    width:100%;
+    padding:0;
+}
+td.cart {
+    text-align: center;
+}
+.red {
+    color:#f00;
+}

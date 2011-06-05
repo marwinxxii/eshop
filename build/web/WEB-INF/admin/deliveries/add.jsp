@@ -24,6 +24,7 @@ if (error) {%>
     <h1><%= messages.getString("messages.error.id") %></h1>
 <%} else {
 %>
+<storage:manager/>
 <script type="text/javascript">
     var itemCount=0;
     var items;
@@ -68,7 +69,6 @@ if (error) {%>
     }
 
     <% if (!add) {%>
-    <storage:manager/>
     items=[
     <storage:delivery keyId="<%= id %>">
     <storage:deliveryList>
@@ -148,7 +148,17 @@ if (error) {%>
 <form method="post" action="/admin/delivery" onsubmit="onSubmit(event);">
     <input type="hidden" name="act" value="add"/>
     <%= messages.getString("admin.forms.deliveries.distributor") %><span class="red">*</span>:
-    <input type="text" name="distributorId" id="distributorId"/><br/>
+    <!--<input type="text" name="distributorId" id="distributorId"/><br/>-->
+    <select name="distributorId" id="distributorId">
+        <storage:distributors end="20"
+                        message="<input type=\"text\" name=\"distributorId\" id=\"distributorId\" maxlength=\"6\"">
+            <storage:distributor>
+                <option value="<storage:field name="id"/>">
+                    <storage:field name="title"/>
+                </option>
+            </storage:distributor>
+        </storage:distributors>
+    </select><br/>
     <%= messages.getString("admin.forms.deliveries.orderDate") %><span class="red">*</span>:
     <input type="text" name="orderDate" id="orderDate"/>
     <small><%= messages.getString("admin.forms.deliveries.orderDate.notice") %></small><br/>

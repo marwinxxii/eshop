@@ -24,6 +24,7 @@ if (error) {%>
     <h1><%= messages.getString("messages.error.id") %></h1>
 <%} else {
 %>
+<storage:manager/>
 <script type="text/javascript">
     var itemCount=0;
     var items;
@@ -68,7 +69,6 @@ if (error) {%>
     }
 
     <% if (!add) {%>
-    <storage:manager/>
     items=[
     <storage:delivery keyId="<%= id %>">
     <storage:deliveryList>

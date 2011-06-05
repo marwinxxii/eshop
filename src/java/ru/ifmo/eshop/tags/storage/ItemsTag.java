@@ -1,5 +1,6 @@
 package ru.ifmo.eshop.tags.storage;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import javax.servlet.jsp.JspException;
@@ -60,6 +61,11 @@ public final class ItemsTag extends RecordsTag {
         }
         index=0;
         if (items.isEmpty()) {
+            try {
+                pageContext.getResponse().getWriter().println(message);
+            } catch (IOException ex) {
+                throw new JspException(ex);
+            }
             return SKIP_BODY;
         } else {
             return EVAL_BODY_INCLUDE;
