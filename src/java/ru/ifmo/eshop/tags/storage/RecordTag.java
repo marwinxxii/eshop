@@ -50,7 +50,7 @@ public abstract class RecordTag extends TagSupport {
     }
 
     public void setKeyId(int id) {
-        if (id<=0) throw new IllegalArgumentException("id is <=0");
+        if (id<=0) throw new IllegalArgumentException("id is <=0:"+id);
         this.keyId=id;
     }
 

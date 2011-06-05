@@ -19,7 +19,11 @@ public final class ItemsTag extends RecordsTag {
     private int labelId=-1;
 
     public Item fetchItem() {
-        return items.get(index++);
+        if (index<items.size()) {
+            return items.get(index++);
+        } else {
+            return null;
+        }
     }
 
     public int getArtistId() {

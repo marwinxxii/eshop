@@ -22,4 +22,9 @@
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 	</tag>
+        <tag>
+		<name>get</name>
+		<tagclass>ru.ifmo.eshop.tags.other.GetBundleTag</tagclass>
+		<bodycontent>empty</bodycontent>
+	</tag>
 </taglib>

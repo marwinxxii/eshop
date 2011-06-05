@@ -35,6 +35,7 @@ ResourceBundle messages=(ResourceBundle)pageContext.getAttribute("resourceBundle
                 <b><%= messages.getString("forms.actions") %></b>
             </td>
         </tr>
+        <storage:manager/>
         <storage:items end="20"
         message="<%= "<tr><td colspan=4>"+messages.getString("messages.items.notfound")+"</td></tr>" %>">
             <storage:item>

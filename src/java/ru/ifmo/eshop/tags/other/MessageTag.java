@@ -34,14 +34,20 @@ public class MessageTag extends TagSupport {
     @Override
     public int doStartTag() throws JspException {
         if (src==null) {
-            src=(ResourceBundle)pageContext.getAttribute("resourceBundle",
-                    PageContext.REQUEST_SCOPE);
+            src=(ResourceBundle)pageContext.getAttribute("resourceBundle",PageContext.REQUEST_SCOPE);
         }
         try {
             pageContext.getOut().print(src.getString(key));
         } catch (IOException ex) {
             throw new JspException(ex);
         }
+        src=null;
         return SKIP_BODY;
+    }
+
+    @Override
+    public void release() {
+        key=null;
+        src=null;
     }
 }

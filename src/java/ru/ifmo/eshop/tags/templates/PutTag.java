@@ -12,7 +12,8 @@ import ru.ifmo.eshop.tags.beans.PageParameter;
 
 public class PutTag extends TagSupport {
 
-    private String name, content, direct = "false";
+    private String name, content;
+    private boolean direct = false;
 
     public void setName(String s) {
         name = s;
@@ -22,7 +23,7 @@ public class PutTag extends TagSupport {
         content = s;
     }
 
-    public void setDirect(String s) {
+    public void setDirect(boolean s) {
         direct = s;
     }
 
@@ -47,7 +48,7 @@ public class PutTag extends TagSupport {
 
     @Override
     public void release() {
-        name = content = direct = null;
+        name = content = null;
     }
 
     private TagSupport getAncestor(String className)

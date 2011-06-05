@@ -71,7 +71,9 @@ if (act!=null && act.equals("edit")) {
 if (error) {%>
     <h1><%= messages.getString("messages.error.id") %></h1>
 <%} else {
-    if(add){%>
+%>
+<storage:manager/>
+<% if(add){%>
 <b><%= messages.getString("admin.forms.artists.add") %></b><br /><br/>
 <form method="post" action="/admin/artist" onsubmit="onSubmit(event);">
     <input type="hidden" name="act" value="add"/>
@@ -79,7 +81,17 @@ if (error) {%>
     <input type="text" name="title" id="title" />
     <small><%= messages.getString("admin.forms.artists.title.notice") %></small><br />
     <%= messages.getString("admin.forms.artists.genreId") %><span class="red">*</span>:
-    <input type="text" name="genreId" id="genreId" maxlength="6" />
+    <!--<input type="text" name="genreId" id="genreId" maxlength="6" />-->
+    <select name="genreId" id="genreId">
+        <storage:genres end="20"
+                        message="<input type=\"text\" name=\"genreId\" id=\"genreId\" maxlength=\"6\"">
+            <storage:genre>
+                <option value="<storage:field name="id"/>">
+                    <storage:field name="title"/>
+                </option>
+            </storage:genre>
+        </storage:genres>
+    </select><br/>
     <small><%= messages.getString("admin.forms.genres.add") %></small><br />
     <%= messages.getString("admin.forms.artists.country") %>:
     <input type="text" name="country" id="country" />
@@ -92,7 +104,6 @@ if (error) {%>
 </form>
 <br/><small><%= messages.getString("forms.mandatory") %></small>
 <%} else {%>
-<storage:manager/>
 <storage:artist keyId="<%= id %>"
 message="<%= messages.getString("messages.artist.lost")%>">
 <b><%= messages.getString("admin.forms.artists.edit") %></b><br /><br/>

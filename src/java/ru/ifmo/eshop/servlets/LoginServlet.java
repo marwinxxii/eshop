@@ -33,12 +33,10 @@ public class LoginServlet extends HttpServlet {
         String login=request.getParameter("login");
         String password=request.getParameter("password");
         if (login==null || password==null) {
-            System.out.println("login or password is null");
             response.sendRedirect("/admin/login.jsp");
             return;
         }
         if (!login.equals("admin") || !password.equals("password")) {
-            System.out.println("login or password is wrong");
             response.sendRedirect("/admin/login.jsp");
             return;
         }

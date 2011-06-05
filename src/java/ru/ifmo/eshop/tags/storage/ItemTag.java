@@ -3,26 +3,13 @@ package ru.ifmo.eshop.tags.storage;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.GregorianCalendar;
-//import java.util.HashSet;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 import ru.ifmo.eshop.storage.Item;
 import ru.ifmo.eshop.storage.StorageManager;
 
 public final class ItemTag extends RecordTag {
-    //private static HashSet<String> fields=new HashSet<String>();
     private static GregorianCalendar calendar=new GregorianCalendar();
-    /*static {
-        fields.add("id");
-        fields.add("mediaType");
-        fields.add("format");
-        fields.add("label.title");
-        fields.add("label.id");
-        fields.add("title");
-        fields.add("cover");
-        fields.add("releaseDate");
-    }*/
-    //TODO field list needed?
 
     @Override
     public int doStartTag() throws JspException {

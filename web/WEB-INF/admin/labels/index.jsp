@@ -5,6 +5,7 @@
 
 <%
 ResourceBundle messages=(ResourceBundle)pageContext.getAttribute("resourceBundle",PageContext.REQUEST_SCOPE);
+System.err.println(messages.getLocale());
 %>
 <script type="text/javascript">
     var confirmMessage='<bundle:message key="confirm"/>';
